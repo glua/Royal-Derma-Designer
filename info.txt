@@ -1,0 +1,11 @@
+"AddonInfo"
+{
+	"name"				"Royal Derma Designer"
+	"version"			"0.0.0.1"
+	"up_date"			"26/08/14"
+	"author_name"			"Royal"
+	"author_email"			""
+	"author_url"			""
+	"info"				"have lots of bugs!"
+	"override"			"0"
+}
