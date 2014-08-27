@@ -4,16 +4,16 @@
  currently i am using global values and function to better debug bugs,exploits and error
 
 -----------------------------------------------------------]]
-
 DDP = {}
 DDP.frame = nil
 DDP.elemente = {}
 DDP.selected = {}
 DDP.VGUI={}
 DDP.test ={}
-DDP.toolbox = {"Button","Panel","Image","ImageButton","Label","TextEntry","ColorButton","ColorMixer","ColorPalette","ComboBox","ModelPanel"}
+DDP.toolbox = {"Button","Panel","Image","ImageButton","Label","TextEntry","ColorButton","ColorMixer","ColorPalette","ComboBox","ModelPanel","CheckBoxLabel","NumberWang","NumPad","Progress"}
 DDP.MousePos = {0,0}
 DDP.Mousemove = false
+DDP.Name = "Empty"
 DDP.copied = {}
 CreateClientConVar("dd_gap",15,false,false)
 
@@ -33,9 +33,6 @@ surface.CreateFont( "Test_font", {
 	additive = false,
 	outline = false,
 } )
-
-
-
 
 --[[---------------------------------------------------------
 				    2
@@ -247,7 +244,7 @@ if( DDP.frame != nil ) then
 	table.Empty(DDP.selected)
 end
 
-DDP.frame = vgui.Create( "RFrame" )
+DDP.frame = vgui.Create( "DFrame" )
 DDP.frame:SetPos( tab.frame.x, tab.frame.y )
 DDP.frame:SetSize(tab.frame.w, tab.frame.h)
 DDP.frame:SetTitle( tab.frame.title )
@@ -458,7 +455,7 @@ Mainf:MakePopup()
 		  prun:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.24)
 		  prun:SetSize(200,25)
 			  function prun:Clicked()
-			  DebugTheFile()
+			  CreateFrameFile( DDP.Name )
 		  end
 		  t:AddItem(starten,2)
 
@@ -474,7 +471,6 @@ Mainf:MakePopup()
 		  end
 		  t:AddItem(zuletzt,2)
 		  local bc = {1,2,3,4,5,6,7,8,9}
-		  // currently useless 
 		  for k,v in ipairs(bc) do
 			 local test = vgui.Create("GMenuButton",zuletzt)
 			 test:SetText("test" .. k .. "")
@@ -599,8 +595,6 @@ Mainf:MakePopup()
 		end
 	end
 
-	// delete the following if the getmods works perfectly
-
 		 DProperties = vgui.Create( "DProperties" )
 		 Row2 = DProperties:CreateRow( "Properties", "IsVisible" )
 		 Row2:Setup( "Boolean" )
@@ -638,7 +632,7 @@ end
 function OpenDDD()
 
 
-DDP.frame = vgui.Create( "RFrame" )
+DDP.frame = vgui.Create( "DFrame" )
 DDP.frame:SetPos( 100, 100 )
 DDP.frame:SetSize(ScrW()/2,ScrH()/2)
 DDP.frame:SetTitle( "My new Derma frame" )
@@ -713,10 +707,8 @@ end
 Main()
 	 
 end
-
-concommand.Add("cl_open_DD",OpenDDD)
-
--- net.Receive( "dermades", OpenDDD ) only in local version
+concommand.Add("open_dd",OpenDDD)
+ --net.Receive( "dermades", OpenDDD )
 
   --[[---------------------------------------------------------
 NAME:GetRange
@@ -769,7 +761,7 @@ menu_pressed = nil  end )
 end
 menu_pressed:AddOption( "cut", function() if( #DDP.copied > 0 ) then table.Empty(DDP.copied) end table.insert( DDP.copied, { classname =  DDP.selected[1].ClassName, text = DDP.selected[1]:GetText(), w = DDP.selected[1]:GetWide(), h = DDP.selected[1]:GetTall() } ) DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
 menu_pressed:AddOption( "delete", function() DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
-menu_pressed:AddOption( "Code display", function() LocalPlayer():ChatPrint("currently in dev") menu_pressed = nil  end ) 
+menu_pressed:AddOption( "Code display", function() LocalPlayer():ChatPrint("wip") menu_pressed = nil  end ) 
 menu_pressed:Open()
 
 

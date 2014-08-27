@@ -1,6 +1,6 @@
 
 --[[---------------------------------------------------------
-   Name: GetMethods
+   Name: Filter
 -----------------------------------------------------------]]
 local function Filter( tab, text )
 
@@ -14,31 +14,36 @@ local function Filter( tab, text )
 end
 
 --[[---------------------------------------------------------
-   Name: GetMethods
+   Name: SaveTheFile
 -----------------------------------------------------------]]
 function SaveTheFile()
-local frame = vgui.Create("DFrame")
-	     frame:SetPos(368,316)
-		 frame:SetSize(435,341) 
-		 frame:MakePopup()
+if( saveframe != nil ) then saveframe:Remove() saveframe = nil end
+		saveframe = vgui.Create("DFrame")
+	     saveframe:SetPos(368,316)
+		 saveframe:SetSize(435,341) 
+		 saveframe:MakePopup()
 
-local filename = vgui.Create("RTextEntry",frame)
-	     filename:SetPos(0.0091533180778032*frame:GetWide() ,0.91202346041056*frame:GetTall())
-		 filename:SetSize(0.64302059496568*frame:GetWide(),0.073313782991202*frame:GetTall())
+local filename = vgui.Create("RTextEntry",saveframe)
+	     filename:SetPos(0.0091533180778032*saveframe:GetWide() ,0.91202346041056*saveframe:GetTall())
+		 filename:SetSize(0.64302059496568*saveframe:GetWide(),0.073313782991202*saveframe:GetTall())
 		 
-local e = vgui.Create("DButton",frame)
-	     e:SetPos(0.67276887871854*frame:GetWide() ,0.91202346041056*frame:GetTall())
-		 e:SetSize(0.31350114416476*frame:GetWide(),0.073313782991202*frame:GetTall())
+local e = vgui.Create("DButton",saveframe)
+	     e:SetPos(0.67276887871854*saveframe:GetWide() ,0.91202346041056*saveframe:GetTall())
+		 e:SetSize(0.31350114416476*saveframe:GetWide(),0.073313782991202*saveframe:GetTall())
 		 e:SetText("Save")
 		 e.DoClick = function()
 	
 		CreateProjectFile( Filter({"!"," ","/",".","?","*","#","+","<",">","|","°","^","]","[","}","{","§","$","%","&","(",")",[["]],"=",[[']],"-"},filename:GetText()) )
-			
+		DDP.Name = Filter({"!"," ","/",".","?","*","#","+","<",">","|","°","^","]","[","}","{","§","$","%","&","(",")",[["]],"=",[[']],"-"},filename:GetText())
+		saveframe:Remove()
+		saveframe = nil
+	
+
 		 end
 		 
-local e = vgui.Create("DListView",frame)
-	     e:SetPos(0.0091533180778032*frame:GetWide() ,0.087976539589443*frame:GetTall())
-		 e:SetSize(0.97711670480549*frame:GetWide(),0.80645161290323*frame:GetTall())
+local e = vgui.Create("DListView",saveframe)
+	     e:SetPos(0.0091533180778032*saveframe:GetWide() ,0.087976539589443*saveframe:GetTall())
+		 e:SetSize(0.97711670480549*saveframe:GetWide(),0.80645161290323*saveframe:GetTall())
 		 e:SetMultiSelect( false )
 	 	 e:AddColumn( "Name" )
 	 	 e:AddColumn( "Author" )
@@ -58,7 +63,7 @@ local e = vgui.Create("DListView",frame)
  end
 
  --[[---------------------------------------------------------
-   Name: GetMethods
+   Name: LoadTheFile
 -----------------------------------------------------------]]
  function LoadTheFile()
 
@@ -105,58 +110,12 @@ local listview = vgui.Create("DListView",loadframe)
 		 e:SetSize(0.31350114416476*loadframe:GetWide(),0.073313782991202*loadframe:GetTall())
 		 e:SetText("Load")
 		 e.DoClick = function()
-
+		 DDP.Name = listview:GetSelected()[1]:GetColumnText(1)
 		 // check TextEntry text not listview
 			LoadProjectFile( listview:GetSelected()[1]:GetColumnText(1) )	
-		 end
-		 
- end
---[[---------------------------------------------------------
-   Name: GetMethods
------------------------------------------------------------]]
- function DebugTheFile()
-
- local frame = vgui.Create("DFrame")
-	     frame:SetPos(368,316)
-		 frame:SetSize(435,341) 
-		 frame:MakePopup()
-
-local filename = vgui.Create("RTextEntry",frame)
-	     filename:SetPos(0.0091533180778032*frame:GetWide() ,0.91202346041056*frame:GetTall())
-		 filename:SetSize(0.64302059496568*frame:GetWide(),0.073313782991202*frame:GetTall())
-		 
-local e = vgui.Create("DButton",frame)
-	     e:SetPos(0.67276887871854*frame:GetWide() ,0.91202346041056*frame:GetTall())
-		 e:SetSize(0.31350114416476*frame:GetWide(),0.073313782991202*frame:GetTall())
-		 e:SetText("Run")
-		 e.DoClick = function()
-	
-		CreateFrameFile( Filter({"!"," ","/",".","?","*","#","+","<",">","|","°","^","]","[","}","{","§","$","%","&","(",")",[["]],"=",[[']],"-"},filename:GetText()) )
+			loadframe:Remove()
+			loadframe = nil
 			
 		 end
 		 
-local e = vgui.Create("DListView",frame)
-	     e:SetPos(0.0091533180778032*frame:GetWide() ,0.087976539589443*frame:GetTall())
-		 e:SetSize(0.97711670480549*frame:GetWide(),0.80645161290323*frame:GetTall())
-		 e:SetMultiSelect( false )
-	 	 e:AddColumn( "Name" )
-	 	 e:AddColumn( "Author" )
-		 e:AddColumn( "VGUI" )
-
-	 	local files, dir = file.Find( "ride/projects/*.txt", "DATA", "nameasc" )
-
-		for k,v in ipairs( files ) do
-		local f = string.Explode("_",v)
-			if(#f > 1 ) then
-			else
-				local tab = util.JSONToTable( file.Read("ride/projects/" .. v .. "", "DATA") )
-				e:AddLine( tab.name, tab.author, #tab.elemente )
-			end
-
-		end
-		function e:OnRowSelected( LineID, Line ) 
-
-		filename:SetText( Line:GetColumnText( 1 ) )
-		 end
-
  end
