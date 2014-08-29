@@ -457,6 +457,14 @@ Mainf:MakePopup()
 			  function prun:Clicked()
 			  CreateFrameFile( DDP.Name )
 		  end
+		   local Skincreator = vgui.Create("GMenuButton",starten)
+		  Skincreator:SetText("skin creator")
+		  Skincreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.31)
+		  Skincreator:SetSize(200,25)
+			  function Skincreator:Clicked()
+			  PaintFrame( 750, 500 )
+		  end
+
 		  t:AddItem(starten,2)
 
 		  zuletzt = vgui.Create( "DPanel")
@@ -897,15 +905,18 @@ if( DDP.frame == nil) then return end
 					-- is parent allowed
 						if( b.ClassName == "RPanel" ) then
 						--LocalPlayer():ChatPrint("in Panel!")
+						DDP.selected[1].y = DDP.selected[1].y + 0.01
 							selected:SetParent(b)
+							--selected:SetPos(0,0)
 						-- calc new pos
 							local parentposx, parentposy = b:GetPos()
-							local mx =  (DDP.frame.x + b.x - gui.MouseX()) + selected:GetWide() 
-							local my = (DDP.frame.y + b.y - gui.MouseY()) + selected:GetTall() 
+							local mx =  (DDP.frame.x  - gui.MouseX()) + selected:GetWide() 
+							local my = (DDP.frame.y  - gui.MouseY()) + selected:GetTall() 
 							Msg( mx .. " " .. my .. "\n")
-							selected.x =  mx
-							selected.y = my
-						--LocalPlayer():ChatPrint("X: " .. selected.x .. " Y: " .. DDP.MousePos[2] .. "")
+							--selected.x = 0  // mx - selected:GetParent().x
+						--	selected.y = 10 // my - selected:GetParent().y
+					--	DDP.selected[1]:SetPos(0,0)
+					--	LocalPlayer():ChatPrint("X: " .. selected.x .. " Y: " ..  selected.y .. "")
 						--	LocalPlayer():ChatPrint("X: " .. mx .. " Y: " .. my .. "")
 						end
 					end
