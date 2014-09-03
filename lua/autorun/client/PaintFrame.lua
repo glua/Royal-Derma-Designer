@@ -1,6 +1,9 @@
 --[[---------------------------------------------------------
 Name: Skincreator
 -----------------------------------------------------------]]
+
+ nlayer = {}
+
  function PaintFrame( w, h )
 
 	local frame = vgui.Create("GMenu")
@@ -12,6 +15,7 @@ Name: Skincreator
 
     local designer = vgui.Create("DDDesigner",frame)
     designer:SetPos(frame:GetWide() * 0.5 - w * 0.5 ,frame:GetTall() * 0.5 - h * 0.5 )
+	designer:SetSize( w - (0.003125*frame:GetWide()) , h )
 		// needs a max w and h 
 	local e = vgui.Create("DDSideBoard",frame)
 	e:SetPos(0.003125*frame:GetWide() ,0.045*frame:GetTall()+3)
@@ -19,8 +23,9 @@ Name: Skincreator
 	e:AddButton("DD/icons/Button.png",function() designer:SetModus("mouse") end )
 	e:AddButton("DD/gui/frect.png",function() designer:SetModus("rect") end )
 	e:AddButton("DD/gui/poly.png",function() designer:SetModus("poly") end )
-	e:AddButton("DD/gui/orect.png",function() LocalPlayer():ChatPrint("next") end )
-	e:AddButton("DD/gui/circle.png",function() LocalPlayer():ChatPrint("next") end )
+	e:AddButton("DD/gui/poly.png",function() designer:SetModus("4poly") end )
+	e:AddButton("DD/gui/orect.png",function() designer:SetModus("orect") end )
+	e:AddButton("DD/gui/circle.png",function() designer:SetModus("circle") end )
 
 	local Eframe = vgui.Create("GMenu",frame)
 	Eframe:SetTitle( "Editor")
@@ -28,19 +33,40 @@ Name: Skincreator
 	Eframe:SetPos(frame:GetWide() + frame.x + 10 ,ScrH() * 0.24)
 	Eframe:SetSize(ScrW()*0.10526315789473684210526315789474,ScrH() * 0.5) 
 	
+	
+	local EColor = vgui.Create("DColorMixer",Eframe)
+	EColor:SetPos(2,33)
+	EColor:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 35)
+	function EColor:ValueChanged(col)
+
+	designer:SetDrawColor(col)
+	
+	end
+
 	local EPanel = vgui.Create("DPanelList",Eframe)
 	EPanel:SetPos(2,Eframe:GetTall()*0.5)
 	EPanel:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 2)
 	EPanel:EnableVerticalScrollbar()
 	local selected = {}
+	
 	function EPanel:Think()
 
 		if( #self.Items < #designer.layer ) then
 
 			Button = vgui.Create( "DDLayer" )
 			Button:SetSize( EPanel:GetWide(), 60 )
+			if( designer.layer[#designer.layer].typ == "4poly" or designer.layer[#designer.layer].typ == "poly" ) then
 			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = designer.layer[#designer.layer].poly } )
+			elseif( designer.layer[#designer.layer].typ == "rect" ) then
+			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, h = designer.layer[#designer.layer].h } } )
+			elseif( designer.layer[#designer.layer].typ == "orect" ) then
+			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, h = designer.layer[#designer.layer].h } } )
+			elseif( designer.layer[#designer.layer].typ == "circle" ) then
+			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w} } )
+			end
+			table.insert(nlayer, Button)
 			EPanel:AddItem(Button)
+
 		end
 
 		for k,v in ipairs( self.Items ) do
@@ -62,12 +88,4 @@ Name: Skincreator
 	surface.DrawOutlinedRect( 0, 0, w, h )
 	end
 
-	local EColor = vgui.Create("DColorMixer",Eframe)
-	EColor:SetPos(2,33)
-	EColor:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 35)
-	function EColor:ValueChanged(col)
-
-	designer:SetDrawColor(col)
-	
-	end
  end
