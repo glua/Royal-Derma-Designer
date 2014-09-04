@@ -232,6 +232,38 @@ local content = file.Read( name, typ )
 	Msg( "\n" .. "=========================\n" )
 end
 
+function TestTemplate()
+
+
+local frame = vgui.Create( "DFrame" )
+frame:SetPos(500, 500 )
+frame:SetSize(500, 500)
+frame:SetTitle( "Test template" )
+frame:SetVisible( true )
+frame:SetDraggable( true )
+frame:SetSizable( true )
+frame:ShowCloseButton( true )
+frame:MakePopup()
+
+local line = vgui.Create("DButton",frame)
+line:SetText("")
+line:SetPos(50,50)
+line:SetSize(150,150)
+line:SetZPos(32766)
+line:SetVisible(true)
+function line:Paint( w, h )
+
+		surface.DrawCircle( 0.4798927613941 * w,0.442 * h,0.36682420857953 * w , Color(255,0,0,255 ) )
+ 
+		surface.SetDrawColor( 225,0,0,255 )
+		surface.DrawRect( 0.3485254691689 * w,0.29 * h,0.27747989276139 * w,0.354 * h )
+end
+
+
+
+end
+
+
 --[[---------------------------------------------------------
   CreateWindowFromFile
 -----------------------------------------------------------]]
@@ -462,7 +494,7 @@ Mainf:MakePopup()
 		  Skincreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.31)
 		  Skincreator:SetSize(200,25)
 			  function Skincreator:Clicked()
-			  PaintFrame( 750, 500 )
+			  NewTemplate()
 		  end
 
 		  t:AddItem(starten,2)

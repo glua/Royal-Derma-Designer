@@ -4,10 +4,112 @@ Name: Skincreator
 
  nlayer = {}
 
- function PaintFrame( w, h )
+ function NewTemplate()
+
+local select = "basic"
+local test = {}
+ test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 255) }
+
+
+ local frame = vgui.Create("GMenu")
+frame:SetPos(542,442)
+frame:SetSize(300,177) 
+frame:SetDragable( false )
+ frame:MakePopup()
+
+
+  local width = vgui.Create("DTextEntry",frame)
+						 width:SetPos(0.19*frame:GetWide() ,0.49717514124294*frame:GetTall())
+						 width:SetSize(0.32666666666667*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 width:SetText( test[select].w )
+
+ local height = vgui.Create("DTextEntry",frame)
+						 height:SetPos(0.62666666666667*frame:GetWide() ,0.49717514124294*frame:GetTall())
+						 height:SetSize(0.32666666666667*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 height:SetText( test[select].h )
+
+ local e = vgui.Create("DComboBox",frame)
+						 e:SetPos(0.19*frame:GetWide() ,0.33898305084746*frame:GetTall())
+						 e:SetSize(0.76333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 local settings = string.Explode( "\n", file.Read("ride/newmenu_settings.txt", "DATA") )
+							for k,v in ipairs( settings ) do
+								if( v == "" ) then
+
+								else
+
+								local t =  util.JSONToTable( v )
+								test[t.name] = { w = t.w, h = t.h, backg = t.backg }
+								e:AddChoice( t.name )
+								end
+							end 
+							e.OnSelect = function( panel, index, value )
+							select = value
+							 height:SetText( test[select].h )
+							 width:SetText( test[select].h )
+							end
+
+ local e = vgui.Create("RLabel",frame)
+						 e:SetPos(0.046666666666667*frame:GetWide() ,0.18079096045198*frame:GetTall())
+						 e:SetSize(0.16666666666667*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("Name:")
+				
+ local e = vgui.Create("RLabel",frame)
+						 e:SetPos(0.046666666666667*frame:GetWide() ,0.33898305084746*frame:GetTall())
+						 e:SetSize(0.19*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("Settings:")
+
+ local Name = vgui.Create("DTextEntry",frame)
+						 Name:SetPos(0.19*frame:GetWide() ,0.18079096045198*frame:GetTall())
+						 Name:SetSize(0.76333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 Name:SetText( "Unknown" )
+				
+ local e = vgui.Create("RLabel",frame)
+						 e:SetPos(0.046666666666667*frame:GetWide() ,0.49717514124294*frame:GetTall())
+						 e:SetSize(0.15*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("Width:")
+
+ local e = vgui.Create("RLabel",frame)
+						 e:SetPos(0.53*frame:GetWide() ,0.49152542372881*frame:GetTall())
+						 e:SetSize(0.11*frame:GetWide(),0.14689265536723*frame:GetTall())
+						 e:SetText("Tall:")
+
+
+ local e = vgui.Create("RLabel",frame)
+						 e:SetPos(0.046666666666667*frame:GetWide() ,0.64971751412429*frame:GetTall())
+						 e:SetSize(0.15*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("Backg.")
+						
+ local e = vgui.Create("DComboBox",frame)
+						 e:SetPos(0.19*frame:GetWide() ,0.64971751412429*frame:GetTall())
+						 e:SetSize(0.76333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetValue( tostring(test[select].backg) )
+ local e = vgui.Create("RButton",frame)
+						 e:SetPos(0.52*frame:GetWide() ,0.80790960451977*frame:GetTall())
+						 e:SetSize(0.43333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("save settings")
+						 e.DoClick = function()
+
+							
+
+						 end
+ local e = vgui.Create("RButton",frame)
+						 e:SetPos(0.046666666666667*frame:GetWide() ,0.80790960451977*frame:GetTall())
+						 e:SetSize(0.43333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
+						 e:SetText("create")
+						  e.DoClick = function()
+
+						PaintFrame( tonumber(width:GetText()), tonumber(height:GetText()) , Name:GetText() )	
+						frame:Remove()
+
+						 end	
+
+
+ end
+
+  function PaintFrame( w, h, name )
 
 	local frame = vgui.Create("GMenu")
-	frame:SetTitle( "Royal Derma Designer [Skincreator]")
+	frame:SetTitle( name )
 	frame:SetPos(ScrW() * 0.11315789473684210526315789473684,ScrH() * 0.24)
 	frame:SetDragable( false )
 	frame:SetSize(ScrW() * 0.50526315789473684210526315789474,ScrH() * 0.5) 
@@ -33,9 +135,10 @@ Name: Skincreator
 	Eframe:SetPos(frame:GetWide() + frame.x + 10 ,ScrH() * 0.24)
 	Eframe:SetSize(ScrW()*0.10526315789473684210526315789474,ScrH() * 0.5) 
 	
+
 	
 	local EColor = vgui.Create("DColorMixer",Eframe)
-	EColor:SetPos(2,33)
+	EColor:SetPos(2,Eframe:GetTall() * 0.25)
 	EColor:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 35)
 	function EColor:ValueChanged(col)
 
@@ -44,8 +147,8 @@ Name: Skincreator
 	end
 
 	local EPanel = vgui.Create("DPanelList",Eframe)
-	EPanel:SetPos(2,Eframe:GetTall()*0.5)
-	EPanel:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 2)
+	EPanel:SetPos(2,Eframe:GetTall()*0.70)
+	EPanel:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.3 - 2)
 	EPanel:EnableVerticalScrollbar()
 	local selected = {}
 	
@@ -84,8 +187,60 @@ Name: Skincreator
 		end
 	end
 	function EPanel:Paint( w, h )
-	surface.SetDrawColor( 255, 0, 0, 255 )
+	surface.SetDrawColor( 0, 0, 0, 255 )
 	surface.DrawOutlinedRect( 0, 0, w, h )
+	end
+
+	local save = vgui.Create("DButton",Eframe )
+	save:SetPos(2,33)
+	save:SetSize( Eframe:GetWide()-4, 25 )
+	save:SetText("save template")
+	save.DoClick = function()
+
+	local pfile = {}
+	
+	for k,v in ipairs( designer.layer ) do
+		if( v.typ == "poly" ) then
+			local line = [[ 
+		surface.SetDrawColor( 225,0,0,255 )
+		surface.SetTexture(-1)
+		surface.DrawPoly({ { x = ]]  .. v.poly[1].x / designer:GetWide() .. " * w , y = " .. v.poly[1].y / designer:GetTall() .. " * h },{ x = " .. v.poly[2].x / designer:GetWide() .. " * w ,y = " .. v.poly[2].y / designer:GetTall() .. " * h },{x = " .. v.poly[3].x / designer:GetWide() .. " * w ,y = " .. v.poly[3].y / designer:GetTall() .. [[ * h } } )]]
+		table.insert( pfile, line )
+		elseif( v.typ == "4poly" ) then
+			local line = [[ 
+		surface.SetDrawColor( 225,0,0,255 )
+		surface.SetTexture(-1)
+		surface.DrawPoly({ { x = ]]  .. v.poly[1].x / designer:GetWide() .. " * w , y = " .. v.poly[1].y / designer:GetTall() .. " * h },{ x = " .. v.poly[2].x / designer:GetWide() .. " * w ,y = " .. v.poly[2].y / designer:GetTall() .. " * h },{x = " .. v.poly[3].x / designer:GetWide() .. " * w ,y = " .. v.poly[3].y / designer:GetTall() .. " * h },{ x = " .. v.poly[4].x / designer:GetWide() .. " * w , y = " .. v.poly[4].y / designer:GetTall() .. [[ * h} })]]
+		table.insert( pfile, line )
+		elseif( v.typ == "circle" ) then
+			local line = [[ 
+		surface.DrawCircle( ]] .. v.x / designer:GetWide() .. " * w," .. v.y / designer:GetTall() .. " * h," .. v.w / designer:GetTall() .. " * w , Color(" .. "255,0,0,255" ..  [[ ) )]]
+		table.insert( pfile, line )
+		elseif( v.typ == "rect" ) then
+			local line = [[ 
+		surface.SetDrawColor( 225,0,0,255 )
+		surface.DrawRect( ]] .. v.x / designer:GetWide() .. " * w," .. v.y / designer:GetTall() .. " * h," .. v.w / designer:GetWide() .. " * w," .. v.h / designer:GetTall() .. [[ * h )]]
+		table.insert( pfile, line )
+		elseif( v.typ == "orect" ) then
+			local line = [[ 
+		surface.SetDrawColor( 225,0,0,255 )
+		surface.DrawOutlinedRect(]] .. v.x / designer:GetWide() .. " * w ," .. v.y / designer:GetTall() .. " * h," .. v.w / designer:GetWide() .. " * w," .. v.h / designer:GetTall() .. [[ * h )]]
+			table.insert( pfile, line )
+		end
+	end
+	PrintTable( pfile )
+	Msg("\n")
+
+		for k,v in ipairs( pfile ) do
+			if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
+				file.Write( "ride/" .. name .. ".txt", file.Read("ride/" .. name .. ".txt") .. "\n" .. v .. "" )
+			else
+				file.Write("ride/" .. name .. ".txt", v )
+
+			end
+		end
+
+	Msg( file.Read("ride/" .. name .. ".txt","DATA") .. "\n")
 	end
 
  end

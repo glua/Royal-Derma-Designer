@@ -30,7 +30,7 @@ end
 function PANEL:Paint( w, h )
 
 self.draw = {}
-local size = 128
+local size = 64
 if( self.m_iColor.a > 0 ) then
 
 else
