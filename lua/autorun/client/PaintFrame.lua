@@ -134,13 +134,46 @@ frame:SetDragable( false )
 	frame:SetSize(ScrW() * 0.50526315789473684210526315789474,ScrH() * 0.5) 
 	frame:MakePopup()
 
+	local bounds = vgui.Create("DPanel",frame)
+	bounds:SetPos(0.041666666666667*frame:GetWide(),30)
+	bounds:SetSize(frame:GetWide()-bounds.x,frame:GetTall()-31)
+	function bounds:Paint(w,h)
+
+	end
+
     designer = vgui.Create("DDDesigner",frame)
     designer:SetPos(frame:GetWide() * 0.5 - w * 0.5 ,frame:GetTall() * 0.5 - h * 0.5 )
 	designer:SetSize( w - (0.003125*frame:GetWide()) , h )
-		// needs a max w and h 
+	function designer:OverWrite()
+
+		if( self.x < bounds.x ) then
+
+			self.x = bounds.x 
+
+		end
+
+		if( self.y < bounds.y ) then
+
+			self.y = bounds.y
+
+		end
+
+		if( self:GetWide() > bounds:GetWide() ) then
+			
+			self:SetWide( bounds:GetWide() )
+
+		end
+
+		if( self:GetTall() > bounds:GetTall() ) then
+
+			self:SetTall( bounds:GetTall() )
+
+		end
+
+	end
 	local e = vgui.Create("DDSideBoard",frame)
-	e:SetPos(0.003125*frame:GetWide() ,0.045*frame:GetTall()+3)
-	e:SetSize(0.041666666666667*frame:GetWide(),0.94833333333333*frame:GetTall())
+	e:SetPos(0 ,30)
+	e:SetSize(0.041666666666667*frame:GetWide(),frame:GetTall()-30)
 	e:AddButton("DD/icons/Button.png",function() designer:SetModus("mouse") end )
 	e:AddButton("DD/gui/frect.png",function() designer:SetModus("rect") end )
 	e:AddButton("DD/gui/poly.png",function() designer:SetModus("poly") end )

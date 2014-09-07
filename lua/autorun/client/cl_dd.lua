@@ -126,7 +126,8 @@ function GetMods()
 local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 local t = {}
 	for k,v in ipairs( files ) do
-		local content = string.Explode( "\n", file.Read("vgui/".. v .. "","LUA") )
+		local str =  file.Read("vgui/".. v .. "","LUA") or ""
+		local content = string.Explode( "\n", str )
 		local classname = string.Explode(""..[["]].."",content[#content])[2]
 		if(classname != nil ) then table.insert(t, {vgui = classname , methods = { } } ) end
 		for line,row in ipairs( content ) do
@@ -525,7 +526,7 @@ Mainf:MakePopup()
 			 surface.DrawRect( 0, 0, w, h )
 		  end
 		  function zuletzt:PaintOver( w, h )
-			draw.SimpleText(   "Latest" , "Test_font", w * 0.1, h * 0.03, Color(255,255,255,255), 0, 1 )
+			draw.SimpleText( "Latest" , "Test_font", w * 0.1, h * 0.03, Color(255,255,255,255), 0, 1 )
 		  end
 		  t:AddItem(zuletzt,2)
 		  local bc = {1,2,3,4,5,6,7,8,9}
@@ -539,6 +540,16 @@ Mainf:MakePopup()
 		  panel = vgui.Create( "DPanelList")
 		  panel:SetSize(  Mainf:GetWide()+11, Mainf:GetTall()-Mainf:GetTall()*0.5)
 		  panel:SetPos( 0, 0 )
+		  panel:EnableVerticalScrollbar()
+
+		  panel.VBar.btnUp:SetVisible(false)
+		  panel.VBar.btnDown:SetVisible(false)
+		  panel.VBar.btnGrip:SetVisible(false)
+		  function panel.VBar:Paint(w,h)
+	 	  surface.SetDrawColor(0,0,0,0)
+	 	  surface.DrawRect(0,0,w,h)
+		  return true
+		  end
 		  t:AddItem(panel,1)
 		  for i = 1, #DDP.toolbox do 
 			DDListButtom = vgui.Create( "DDListButtom" )
@@ -593,7 +604,7 @@ Mainf:MakePopup()
 				Rowb:SetValue( DDP.selected[1]:GetTall() )
 				Rowb.DataChanged = function( _, val ) DDP.selected[1]:SetTall(val) end
 				for k,v in ipairs(DDP.VGUI) do
-					if( v.vgui == DDP.selected[1].ClassName ) then
+					if( v.vgui == DDP.selected[1].ClassName or v.vgui == string.Replace( DDP.selected[1].ClassName, "R", "D" ) ) then
 						AS = {}
 						for a,b in ipairs( v.methods ) do 
 						local Rstring = [[

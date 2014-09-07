@@ -69,8 +69,13 @@ end
 		surface.SetDrawColor( self.m_iColor )
 		surface.DrawRect( 0, 0, w, h )
 
-		surface.SetDrawColor(255,255,0,255)
-		surface.DrawOutlinedRect( 0, 0, w, h )
+end
+
+--[[---------------------------------------------------------
+   Name: OverWrite
+-----------------------------------------------------------]]
+function PANEL:OverWrite()
+
 
 end
 
@@ -92,7 +97,7 @@ function PANEL:Think()
 	elseif(self.m_imod == "circle" ) then
 		self:SetCursor( "crosshair" )
 	end
-
+	self:OverWrite()
 end
 
 
