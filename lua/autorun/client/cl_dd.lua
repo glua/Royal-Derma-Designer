@@ -513,6 +513,7 @@ Mainf:MakePopup()
 					end
 
 				// open scoreboard ... 
+				scoreboard_menu()
 		  end
 
 
