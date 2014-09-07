@@ -4,7 +4,7 @@
 --]]
 
 PANEL = {}
-
+AccessorFunc( PANEL, "m_bclose", 		"ShowClose", 		FORCE_BOOL )
 --[[---------------------------------------------------------
 NAME: Init()
 desc: 
@@ -14,10 +14,11 @@ function PANEL:Init()
 
 self:MakePopup()
 	self.close = vgui.Create("DButton",self)
-	self.close.Paint = function( panel, w, h ) surface.SetDrawColor(255,255,255,255) 	surface.SetMaterial( Material("DD/gui/cross5.png")) surface.DrawTexturedRect( 0,0, w, h) end
+	self.close.Paint = function( panel, w, h ) surface.SetDrawColor(255,255,255,255) 	surface.SetMaterial( Material("clan/cross5.png")) surface.DrawTexturedRect( 0,0, w, h) end
 	self.drag = nil
 	self.title = ""
 	self.Dragable = true
+	self:SetShowClose( true )
 end
 
 --[[---------------------------------------------------------
@@ -66,6 +67,16 @@ function PANEL:PaintOver( w, h )
 end
 
 --[[---------------------------------------------------------
+NAME:OverWrite
+desc: 
+-----------------------------------------------------------]]
+function PANEL:OverWrite()
+
+
+
+end
+
+--[[---------------------------------------------------------
 NAME: Think()
 desc: 
 -----------------------------------------------------------]]
@@ -79,6 +90,17 @@ if( self.Dragable ) then
 		
 		end
 end
+
+	if( self.close != nil ) then
+		if( self.m_bclose ) then
+			self.close:SetVisible( true )
+		else
+			self.close:SetVisible( false )
+		end
+
+	end
+
+self:OverWrite()
 
 end
 

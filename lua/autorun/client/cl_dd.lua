@@ -232,38 +232,6 @@ local content = file.Read( name, typ )
 	Msg( "\n" .. "=========================\n" )
 end
 
-function TestTemplate()
-
-
-local frame = vgui.Create( "DFrame" )
-frame:SetPos(500, 500 )
-frame:SetSize(500, 500)
-frame:SetTitle( "Test template" )
-frame:SetVisible( true )
-frame:SetDraggable( true )
-frame:SetSizable( true )
-frame:ShowCloseButton( true )
-frame:MakePopup()
-
-local line = vgui.Create("DButton",frame)
-line:SetText("")
-line:SetPos(50,50)
-line:SetSize(150,150)
-line:SetZPos(32766)
-line:SetVisible(true)
-function line:Paint( w, h )
-
-		surface.DrawCircle( 0.4798927613941 * w,0.442 * h,0.36682420857953 * w , Color(255,0,0,255 ) )
- 
-		surface.SetDrawColor( 225,0,0,255 )
-		surface.DrawRect( 0.3485254691689 * w,0.29 * h,0.27747989276139 * w,0.354 * h )
-end
-
-
-
-end
-
-
 --[[---------------------------------------------------------
   CreateWindowFromFile
 -----------------------------------------------------------]]
@@ -286,7 +254,7 @@ DDP.frame:SetSizable( true )
 DDP.frame:ShowCloseButton( true )
 DDP.frame:MakePopup()
 function DDP.frame:OnClose()
-LocalPlayer():ChatPrint( "closed")
+LocalPlayer():ChatPrint( "[DermaDesigner]: closed")
 DDP.frame = nil
 table.Empty(DDP.elemente)
 table.Empty(DDP.selected)
@@ -442,10 +410,35 @@ local function Main()
 local Mainf = vgui.Create( "GMenu" )
 Mainf:SetPos( ScrW()-350, 0 )
 Mainf:SetSize( 350, ScrH() )
-Mainf:SetTitle( "Derma Designer" )
+Mainf:SetTitle( "Derma Designer Alpha 0.1" )
 Mainf:SetDragable( false )
 Mainf:SetVisible( true )
 Mainf:MakePopup()
+
+	  local fadeout = vgui.Create("DImageButton",Mainf)
+	  fadeout:SetPos(0,0)
+	  fadeout:SetSize(32,32)
+	  fadeout:SetImage("DD/gui/close.png")
+	  fadeout.DoClick = function()
+
+	  if( fadeout:GetImage() == "DD/gui/close.png" ) then
+		fadeout:SetImage("DD/gui/open.png")
+		Mainf:SetSize( 32, 32 )
+		Mainf:SetPos(ScrW()-32,0)
+		Mainf:SetTitle( "" )
+		Mainf:SetShowClose(false)
+	  else
+		  fadeout:SetImage("DD/gui/close.png")
+		  Mainf:SetPos( ScrW()-350, 0 )
+		  Mainf:SetSize( 350, ScrH() )
+		  Mainf:SetTitle( "Derma Designer Alpha 0.1" )
+		  Mainf:SetShowClose(true)
+			if( !DDP.frame:IsVisible() ) then
+				DDP.frame:SetVisible( true )
+			end
+		end
+
+	  end
 
 	   local t = vgui.Create("GTab",Mainf)
 		  t:SetPos(0,32)
@@ -497,6 +490,31 @@ Mainf:MakePopup()
 			  NewTemplate()
 		  end
 
+		  local Scoreboardcreator = vgui.Create("GMenuButton",starten)
+		  Scoreboardcreator:SetText("scoreboard creator")
+		  Scoreboardcreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.38)
+		  Scoreboardcreator:SetSize(200,25)
+			  function Scoreboardcreator:Clicked()
+				// fade out main
+
+					fadeout:SetImage("DD/gui/open.png")
+					Mainf:SetSize( 32, 32 )
+					Mainf:SetPos(ScrW()-32,0)
+					Mainf:SetTitle( "" )
+					Mainf:SetShowClose(false)
+
+					if( DDP.frame != nil ) then
+
+						if( DDP.frame:IsVisible() ) then
+							DDP.frame:SetVisible( false )
+						end
+
+					end
+
+				// open scoreboard ... 
+		  end
+
+
 		  t:AddItem(starten,2)
 
 		  zuletzt = vgui.Create( "DPanel")
@@ -541,7 +559,7 @@ Mainf:MakePopup()
 			panel:AddItem( DDListButtom) 
 		  end
 	local old =	DDP.selected[1]		  
-	function Mainf:Think()
+	function Mainf:OverWrite()
 	if( DDP.frame == nil ) then Mainf:Remove() return end
 		if( old != DDP.selected[1]) then
 			old = DDP.selected[1]
@@ -682,7 +700,7 @@ DDP.frame:SetSizable( true )
 DDP.frame:ShowCloseButton( true )
 DDP.frame:MakePopup()
 function DDP.frame:OnClose()
-LocalPlayer():ChatPrint( "closed")
+LocalPlayer():ChatPrint( "[DermaDesigner]: closed")
 DDP.frame = nil
 table.Empty(DDP.elemente)
 table.Empty(DDP.selected)

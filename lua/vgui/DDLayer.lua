@@ -1,6 +1,7 @@
 
 PANEL = {}
 AccessorFunc( PANEL, "m_stext", 			"Text" )
+AccessorFunc( PANEL, "m_iID", 			"ID" )
 AccessorFunc( PANEL, "m_bselect", 		"Select", 		FORCE_BOOL )
 --[[---------------------------------------------------------
    Name: 
@@ -10,7 +11,7 @@ function PANEL:Init()
 	self:SetText("")
 	self.draw = {}
 	self:SetSelect(false)
-
+	self.root = {}
 	self.check = vgui.Create("DCheckBox",self)
 end
 
@@ -20,7 +21,7 @@ end
    Name: tab = { typ = "", parent = p, data = {} }
 -----------------------------------------------------------]]
 function PANEL:SetPreView( tab )
-
+self.rrot = table.Copy(tab)
 local w,h = self:GetWide() * 0.3636, self:GetTall() - 4
 
 	if( tab.typ == "poly" ) then
@@ -78,6 +79,9 @@ end
 -----------------------------------------------------------]]
 function PANEL:OnMousePressed( mousecode )
 
+
+
+
 end
 
 
@@ -85,10 +89,24 @@ end
 	OnMouseReleased
 -----------------------------------------------------------]]
 function PANEL:OnMouseReleased( mousecode )
-	if( !self.m_bselect ) then
-		self:SetSelect( true ) 
-	else
-		self:SetSelect(false)
+	if( mousecode == MOUSE_LEFT ) then
+		if( !self.m_bselect ) then
+			self:SetSelect( true ) 
+		else
+			self:SetSelect(false)
+		end
+	end
+
+	if( mousecode == MOUSE_RIGHT ) then
+	local parent = self:GetParent():GetParent()
+	local menu = DermaMenu() 
+	menu:AddOption( "delete", function()  
+	local layer = designer.layer
+	table.remove( layer, self.m_iID )
+	parent:RemoveItem( self.m_iID )
+	self:Remove() end )
+	menu:Open()
+
 	end
 end
 

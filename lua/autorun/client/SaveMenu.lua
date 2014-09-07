@@ -18,9 +18,11 @@ end
 -----------------------------------------------------------]]
 function SaveTheFile()
 if( saveframe != nil ) then saveframe:Remove() saveframe = nil end
-		saveframe = vgui.Create("DFrame")
+		saveframe = vgui.Create("GMenu")
 	     saveframe:SetPos(368,316)
 		 saveframe:SetSize(435,341) 
+		 saveframe:SetTitle("Save projectfile")
+		 saveframe:SetDragable( false )
 		 saveframe:MakePopup()
 
 local filename = vgui.Create("RTextEntry",saveframe)
@@ -68,9 +70,11 @@ local e = vgui.Create("DListView",saveframe)
  function LoadTheFile()
 
  if( loadframe != nil ) then loadframe:Remove() loadframe = nil end
-         loadframe = vgui.Create("DFrame")
+         loadframe = vgui.Create("GMenu")
 	     loadframe:SetPos(368,316)
 		 loadframe:SetSize(435,341) 
+		 loadframe:SetTitle("Load projectfile")
+		 loadframe:SetDragable( false )
 		 loadframe:MakePopup()
 
 		 

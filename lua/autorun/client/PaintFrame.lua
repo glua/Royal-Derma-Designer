@@ -8,7 +8,7 @@ Name: Skincreator
 
 local select = "basic"
 local test = {}
- test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 255) }
+ test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 0) }
 
 
  local frame = vgui.Create("GMenu")
@@ -45,7 +45,7 @@ frame:SetDragable( false )
 							e.OnSelect = function( panel, index, value )
 							select = value
 							 height:SetText( test[select].h )
-							 width:SetText( test[select].h )
+							 width:SetText( test[select].w )
 							end
 
  local e = vgui.Create("RLabel",frame)
@@ -89,7 +89,26 @@ frame:SetDragable( false )
 						 e:SetText("save settings")
 						 e.DoClick = function()
 
-							
+							local save = vgui.Create("GMenu")
+							save:SetPos(542,442)
+							save:SetSize(400,60) 
+							save:SetTitle( "Save settings")
+							save:SetDragable( false )
+							save:MakePopup()
+						 local files = vgui.Create("DTextEntry",save)
+						 files:SetPos(2,32)
+						 files:SetSize(save:GetWide()-4,26)
+						 files:SetText( "" )
+						 function files:OnEnter()
+						 if( string.len(self:GetText()) < 6 ) then
+							LocalPlayer():ChatPrint( "[DermaDesigner]: Sorry the name length must equal 6 or greater than 6, try again")
+						else
+							local t = { backg = Color(0,0,0,0) , name = self:GetText() , h = height:GetText() , w = width:GetText() }
+							local j = util.TableToJSON( t )
+							file.Append( "ride/newmenu_settings.txt", "\n" .. j )
+							self:GetParent():Remove()
+						end
+						 end
 
 						 end
  local e = vgui.Create("RButton",frame)
@@ -115,7 +134,7 @@ frame:SetDragable( false )
 	frame:SetSize(ScrW() * 0.50526315789473684210526315789474,ScrH() * 0.5) 
 	frame:MakePopup()
 
-    local designer = vgui.Create("DDDesigner",frame)
+    designer = vgui.Create("DDDesigner",frame)
     designer:SetPos(frame:GetWide() * 0.5 - w * 0.5 ,frame:GetTall() * 0.5 - h * 0.5 )
 	designer:SetSize( w - (0.003125*frame:GetWide()) , h )
 		// needs a max w and h 
@@ -160,17 +179,21 @@ frame:SetDragable( false )
 			Button:SetSize( EPanel:GetWide(), 60 )
 			if( designer.layer[#designer.layer].typ == "4poly" or designer.layer[#designer.layer].typ == "poly" ) then
 			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = designer.layer[#designer.layer].poly } )
+			Button:SetID( #designer.layer )
 			elseif( designer.layer[#designer.layer].typ == "rect" ) then
 			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, h = designer.layer[#designer.layer].h } } )
+			Button:SetID( #designer.layer )
 			elseif( designer.layer[#designer.layer].typ == "orect" ) then
 			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, h = designer.layer[#designer.layer].h } } )
+			Button:SetID( #designer.layer )
 			elseif( designer.layer[#designer.layer].typ == "circle" ) then
 			Button:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w} } )
+			Button:SetID( #designer.layer )
 			end
 			table.insert(nlayer, Button)
 			EPanel:AddItem(Button)
-
-		end
+			PrintTable( designer.layer )
+		end 
 
 		for k,v in ipairs( self.Items ) do
 	
@@ -194,7 +217,7 @@ frame:SetDragable( false )
 	local save = vgui.Create("DButton",Eframe )
 	save:SetPos(2,33)
 	save:SetSize( Eframe:GetWide()-4, 25 )
-	save:SetText("save template")
+	save:SetText("save")
 	save.DoClick = function()
 
 	local pfile = {}
@@ -231,6 +254,12 @@ frame:SetDragable( false )
 	PrintTable( pfile )
 	Msg("\n")
 
+	if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
+		// overwirte question
+
+		file.Delete("ride/" .. name .. ".txt")
+	end
+
 		for k,v in ipairs( pfile ) do
 			if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
 				file.Write( "ride/" .. name .. ".txt", file.Read("ride/" .. name .. ".txt") .. "\n" .. v .. "" )
@@ -240,7 +269,33 @@ frame:SetDragable( false )
 			end
 		end
 
-	Msg( file.Read("ride/" .. name .. ".txt","DATA") .. "\n")
+	local a,b = 250,25
+	local temp = [[
+function ]] .. name .. [[()
+	local frame = vgui.Create( "DFrame" )
+	frame:SetPos(500, 500 )
+	frame:SetSize(500, 500)
+	frame:SetTitle( "]] .. name .. [[" )
+	frame:SetVisible( true )
+	frame:SetDraggable( true )
+	frame:SetSizable( true )
+	frame:ShowCloseButton( true )
+	frame:MakePopup()
+
+	local preview = vgui.Create("DPanel", frame )
+	preview:SetPos(5,35)
+	preview:SetSize( ]] .. a .. [[, ]] .. b .. [[)
+	function preview:Paint(w,h)
+
+	]] .. file.Read("ride/" .. name .. ".txt","DATA")  .. [[  
+
+	end
+
+end
+
+	]] .. name .. [[() ]]
+	RunString( temp )
+
 	end
 
  end
