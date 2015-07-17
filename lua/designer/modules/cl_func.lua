@@ -1,11 +1,10 @@
 
-
 if( !file.IsDir("DD/db","DATA" ) ) then
 	file.CreateDir("DD/db")
 end
 
 --[[---------------------------------------------------------
-Name: 
+Name: GetValidMethod( panel, string )
 -----------------------------------------------------------]]
 local function GetValidMethod( panel ,method )
 
@@ -37,11 +36,9 @@ return ValueOfMethod
 end
 
 --[[---------------------------------------------------------
-Name: 
+Name: GetTypByString( string )
 -----------------------------------------------------------]]
 function GetTypByString( str )
-
---%a%.%a
 
 t = nil
 local tab = {}
@@ -75,7 +72,7 @@ local tab = {}
 end
 
 --[[---------------------------------------------------------
-Name: 
+Name: GetPosition( string )
 -----------------------------------------------------------]]
 function GetPosition( str )
 
@@ -84,11 +81,12 @@ local s,e = string.find( str ,"%d+")
 local cleanstring = (string.TrimRight( string.sub( str, s, string.len(str)), "]"  ) .. "\n")
 
 	return {x = string.Explode(",",cleanstring)[1], y = string.Explode(",",cleanstring)[2]}
-	--fram:SetPos( GetPosition(tostring(tab.frame:GetTable().Panel)).x, GetPosition(tostring(tab.frame:GetTable().Panel)).y)
 end
 
+--[[---------------------------------------------------------
+Name: TrimString( string )
+-----------------------------------------------------------]]
 local function TrimString( str )
-
 
 local s,e = string.find(  string.lower(str), "(" , 0, true ) 
 local s1,e1 = string.find(  string.lower(str), ")" , #str-1, true ) 
@@ -123,9 +121,9 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 end
 
 --[[---------------------------------------------------------
-Name: 
+Name: GetCatImage( )
 -----------------------------------------------------------]]
- function GetCatImage( n )
+function GetCatImage( n )
  n = string.lower(n)
  t = {}
  local val = ""
@@ -153,17 +151,16 @@ Name:
 
 		end
 		return val
-end
+   end
+
 --[[---------------------------------------------------------
-   Name: GetClassNameByFile
+   Name: GetClassNameByFile( )
 -----------------------------------------------------------]]
 function GetClassNameByFile( f )
-
 
 local needle = { "derma.DefineControl","vgui.Register" }
 local t = {}
 local b = {}
-
 
 		local str =  file.Read("vgui/".. f .. "","LUA") or ""
 		--	print( str )
@@ -216,8 +213,6 @@ function UpdatePanelRank( name )
 
 	hook.Call( "DDP_UpdatePanelRank", nil, name )
 end
-
-
 
 --[[---------------------------------------------------------
    Name: GetAllPanels
@@ -395,7 +390,59 @@ GetAllPanels()
 //RunString("if(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() != nil ) then AS[1] = type(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() ) else Msg(tostring(NIL))end")
 
 --[[---------------------------------------------------------
-   Name: CreateFrameFile( name )
+ Name: GetCurrentCode(  )
+-----------------------------------------------------------]]
+function GetCurrentCode( )
+
+local parent = "frame"
+local fname = "RunWindow"
+local ostr = ""
+
+local header = [[
+local function ]] .. fname .. [[()
+local frame = vgui.Create("]] .. DDP.frame:GetTable().Derma.ClassName .. [[")
+frame:SetPos( ]] .. DDP.frame.x / ScrW() .. [[ * ScrW(), ]] .. DDP.frame.y / ScrH() .. [[ * ScrH() )
+frame:SetSize( ]] .. DDP.frame:GetWide() / ScrW() .. [[ * ScrW(), ]] .. DDP.frame:GetTall() / ScrH() .. [[ * ScrH() )
+frame:MakePopup() 
+]]
+
+
+
+for k,v in ipairs( DDP.elemente ) do
+	 str = [[ local e = vgui.Create( "]] .. v.ClassName .. [[", ]] .. parent .. [[ )
+						 e:SetPos( ]] .. v.x / DDP.frame:GetWide()  .. " * " .. parent .. [[:GetWide(), ]] .. v.y / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
+						 e:SetSize( ]] .. v:GetWide() / DDP.frame:GetWide() .. " * " .. parent .. [[:GetWide(), ]] .. v:GetTall() / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
+				]] 
+   
+	for a,b in ipairs( DDP.vgui[v.ClassName] ) do
+
+		if( GetValidMethod( v, b.name ) ) then 
+		value_X = nil
+			
+			RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. string.Right( b.name, string.len( b.name )-3 )  .. "()" )
+			if( type( value_X ) == "string" ) then
+			str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
+						]]
+
+			else
+			str = str .. [[ e:]] .. b.name .. [[( ]] .. tostring(value_X) .. [[ )
+						]]
+			end
+		
+		end
+      
+	end
+     ostr = ostr .. "\n" ..  str
+end
+
+
+return header .. "\n" .. ostr .. "\n end" 
+
+
+end
+
+--[[---------------------------------------------------------
+Name: CreateFrameFile( name )
 -----------------------------------------------------------]]
 function CreateFrameFile( name )
 local name = name .. "_lua"
@@ -442,7 +489,7 @@ end
 	Msg( file.Read(path .. name .. ".txt","DATA") )
 	RunString( file.Read(path .. name .. ".txt","DATA") ) 
 
-	hook.Call( "DDP_Debug", nil, name )
+	hook.Call( "DDP_Debug", nil, name  )
 end
 
 --[[---------------------------------------------------------
@@ -538,8 +585,8 @@ line:SetSize(5,0)
 line:SetZPos(32766)
 line:SetVisible(true)
 function line:Paint()
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+    surface.SetDrawColor(0,0,255,255)
+    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 
 line2 = vgui.Create("DButton",DDP.frame)
@@ -549,8 +596,8 @@ line2:SetSize(5,0)
 line2:SetZPos(32766)
 line2:SetVisible(true)
 function line2:Paint()
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+    surface.SetDrawColor(0,0,255,255)
+    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 
 --[[---------------------------------------------------------
@@ -563,8 +610,8 @@ line3:SetSize(5,0)
 line3:SetZPos(32766)
 line3:SetVisible(true)
 function line3:Paint()
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+    surface.SetDrawColor(0,0,255,255)
+    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 
 line4 = vgui.Create("DButton",DDP.frame)
@@ -574,8 +621,8 @@ line4:SetSize(5,0)
 line4:SetZPos(32766)
 line4:SetVisible(true)
 function line4:Paint()
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+    surface.SetDrawColor(0,0,255,255)
+    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 	for i=1, #table.GetKeys( tab.elemente ) do
 
@@ -592,7 +639,6 @@ end
 					VGUI_VALUE = v.value
 					RunString( "vgui_element:" .. v.method .. "( VGUI_VALUE )" )
 				end
-
 			end
 			transform = vgui.Create( "DDTransform", DDP.frame )
 			transform:SetPos( vgui_element.x, vgui_element.y )
@@ -602,6 +648,8 @@ end
 		end
 	end
 	VGUI_VALUE = nil
+
+    DDP.selected[1] = DDP.elemente[1]
 end
 
 --[[---------------------------------------------------------
@@ -672,10 +720,9 @@ function AutoSaveProjectFile( name, content )
 
 end
 
-
-
 --[[---------------------------------------------------------
    Name: GetValidMethods
+   NOTE: DELETE ?!
 -----------------------------------------------------------]]
 function GetValidMethods( gui )
 t = {}

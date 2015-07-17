@@ -1,54 +1,16 @@
 --[[---------------------------------------------------------
 Name: Skincreator
-	function DDP_Designer.Projects[ #DDP_Designer.Projects ]:OverWrite()
-	/*
-		if( self.x < bounds.x ) then
-
-			self.x = bounds.x 
-
-		end
-
-		if( self.y < bounds.y ) then
-
-			self.y = bounds.y
-
-		end
-
-		if( self:GetWide() > bounds:GetWide() ) then
-			
-			self:SetWide( bounds:GetWide() )
-
-		end
-
-		if( self:GetTall() > bounds:GetTall() ) then
-
-			self:SetTall( bounds:GetTall() )
-
-		end
-		*/
-	end
+Desc:
+Note: Some of the panel was created with the Derma Designer
 -----------------------------------------------------------]]
 
-
 DDP_Designer = {  Projects = {}  }
- nlayer = {}
-
-
-
-
-
-
-
-
-
-
-
 
  --[[---------------------------------------------------------
 Name: AddDesigner( string, panel )
 -----------------------------------------------------------]]
 local function AddDesigner( name, sheet )
-    --DDP_Designer.Projects[ #DDP_Designer.Projects + 1 ] = 
+ 
 	local she = vgui.Create("DDDesigner")
 	she:SetSize( 10,10 )
 
@@ -60,27 +22,22 @@ local function AddDesigner( name, sheet )
 
 end
 
-
-
-
  --[[---------------------------------------------------------
-Name: 
+Name: NewTemplate( panel ) --sheet
 -----------------------------------------------------------]]
- function NewTemplate( s )
+function NewTemplate( s )
 
 local select = "basic"
 local test = {}
- test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 0) }
+test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 0) }
 
-
- local frame = vgui.Create("GMenu")
+local frame = vgui.Create("GMenu")
 frame:SetPos(542,442)
 frame:SetSize(300,177) 
 frame:SetDragable( false )
- frame:MakePopup()
+frame:MakePopup()
 
-
-  local width = vgui.Create("DTextEntry",frame)
+ local width = vgui.Create("DTextEntry",frame)
 						 width:SetPos(0.19*frame:GetWide() ,0.49717514124294*frame:GetTall())
 						 width:SetSize(0.32666666666667*frame:GetWide(),0.14124293785311*frame:GetTall())
 						 width:SetText( test[select].w )
@@ -124,6 +81,20 @@ frame:SetDragable( false )
 						 Name:SetPos(0.19*frame:GetWide() ,0.18079096045198*frame:GetTall())
 						 Name:SetSize(0.76333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
 						 Name:SetText( "Unknown" )
+                         Name.count = 0
+                         Name.PaintOver = function( self, w, h )
+                        if( self:IsEditing() ) then return end
+                        for k,v in ipairs( s:GetAllTabs() ) do
+
+                            if( string.Explode( "(", v.Name  )[1]== string.Explode( "(", self:GetText()  )[1] ) then
+
+                                  self.count = self.count + 1
+                           end
+                         end
+                         
+                         if( self.count > 0 ) then self:SetText( string.Explode( "(", self:GetText()  )[1] .. "(" .. self.count .. ")" ) self.count = 0 end
+
+                         end
 				
  local e = vgui.Create("DLabel",frame)
 						 e:SetPos(0.046666666666667*frame:GetWide() ,0.49717514124294*frame:GetTall())
@@ -151,25 +122,26 @@ frame:SetDragable( false )
 						 e:SetText("save settings")
 						 e.DoClick = function()
 
-							local save = vgui.Create("GMenu")
-							save:SetPos(542,442)
-							save:SetSize(400,60) 
-							save:SetTitle( "Save settings")
-							save:SetDragable( false )
-							save:MakePopup()
+						 local save = vgui.Create("GMenu")
+						 save:SetPos(542,442)
+						 save:SetSize(400,60) 
+						 save:SetTitle( "Save settings")
+						 save:SetDragable( false )
+					   	 save:MakePopup()
+
 						 local files = vgui.Create("DTextEntry",save)
 						 files:SetPos(2,32)
 						 files:SetSize(save:GetWide()-4,26)
 						 files:SetText( "" )
 						 function files:OnEnter()
-						 if( string.len(self:GetText()) < 6 ) then
-							LocalPlayer():ChatPrint( "[DermaDesigner]: Sorry the name length must equal 6 or greater than 6, try again")
-						else
-							local t = { backg = Color(0,0,0,0) , name = self:GetText() , h = height:GetText() , w = width:GetText() }
-							local j = util.TableToJSON( t )
-							file.Append( "ride/newmenu_settings.txt", "\n" .. j )
-							self:GetParent():Remove()
-						end
+						    if( string.len(self:GetText()) < 6 ) then
+							    LocalPlayer():ChatPrint( "[DermaDesigner]: Sorry the name length must equal 6 or greater than 6, try again")
+						    else
+							    local t = { backg = Color(0,0,0,0) , name = self:GetText() , h = height:GetText() , w = width:GetText() }
+							    local j = util.TableToJSON( t )
+							    file.Append( "ride/newmenu_settings.txt", "\n" .. j )
+							    self:GetParent():Remove()
+						    end
 						 end
 
 						 end
@@ -177,21 +149,19 @@ frame:SetDragable( false )
 	   e:SetPos(0.046666666666667*frame:GetWide() ,0.80790960451977*frame:GetTall())
 	   e:SetSize(0.43333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
 	   e:SetText("create")
-	   e.DoClick = function()
+       e.DoClick = function( self )
+
 	   AddDesigner( Name:GetText(), s )
-					--	PaintFrame( tonumber(width:GetText()), tonumber(height:GetText()) , Name:GetText() )	
-		frame:Remove()
+	   frame:Remove()
 
-	 end	
-
-
+	 end
  end
 
 
- --[[---------------------------------------------------------
-Name: 
+--[[---------------------------------------------------------
+Name: PaintFrame( string )
 -----------------------------------------------------------]]
-  function PaintFrame( n )
+function PaintFrame( n )
 
 	local frame = vgui.Create("GMenu")
 	frame:SetTitle( "designer" )
@@ -203,7 +173,23 @@ Name:
 	local sheet = vgui.Create( "DPropertySheet", frame )
 	sheet:SetPos(0.041666666666667*frame:GetWide(),30)
 	sheet:SetSize( frame:GetWide() - 0.041666666666667*frame:GetWide() ,frame:GetTall() - 25)
+    sheet.GetActive = function( self ) 
+        local t = nil
+        for k,v in ipairs( self.Items ) do 
+            if( v.Panel:IsVisible() ) then
+             t = v
+            end 
+        end
+     return t
+     end 
 
+     sheet.GetAllTabs = function( self )
+
+
+        return self.Items
+
+     end
+    
 	local datei = vgui.Create( "GMenuButton", frame )
 	datei:SetPos( 2, 2 )
 	datei:SetSize( frame:GetWide() * .06, 26 )
@@ -212,9 +198,9 @@ Name:
 
 	local datei_menu = DermaMenu() 
 	datei_menu:AddOption( "New", function() NewTemplate( sheet ) end )
-	datei_menu:AddOption( "unset", function()  end )
-	datei_menu:AddOption( "unset", function()  end )
-	datei_menu:AddOption( "unset", function()  end )
+	datei_menu:AddOption( "Open", function()  end )
+	datei_menu:AddOption( "Save", function()  end )
+	datei_menu:AddOption( "Save as", function()  end )
 	datei_menu:AddOption( "unset", function()  end )
 	datei_menu:AddOption( "unset", function()  end )
 	datei_menu:AddOption( "unset", function()  end )
@@ -226,33 +212,27 @@ Name:
 	datei_menu:Open( x, y )
 	end
 
-
 	local bearbeiten = vgui.Create( "GMenuButton", frame )
 	bearbeiten:SetPos( frame:GetWide() * .06 + 2, 2 )
 	bearbeiten:SetSize( frame:GetWide() * .06, 26 )
 	bearbeiten:SetText( "EDIT" )
 
-
 	local function GetDDesigner( )
 
 	local panel = nil
 
-	if(  #DDP_Designer.Projects > 0 ) then
+	    if(  #DDP_Designer.Projects > 0 ) then
 
-		for k,v in ipairs( DDP_Designer.Projects ) do
+		    for k,v in ipairs( DDP_Designer.Projects ) do
 
-			if( v.panel:IsVisible() ) then
+		    	if( v.panel:IsVisible() ) then
 
-				panel = v.panel
-			end
-
-		end
-	end
+			    	panel = v.panel
+		    	end
+		    end
+	    end
 		return panel
-
 	end
-
-
 
 	local e = vgui.Create("DDSideBoard",frame)
 	e:SetPos(0 ,30)
@@ -270,37 +250,32 @@ Name:
 	Eframe:SetPos(frame:GetWide() + frame.x + 10 ,ScrH() * 0.24)
 	Eframe:SetSize(ScrW()*0.10526315789473684210526315789474,ScrH() * 0.5) 
 	
-
-	
 	local EColor = vgui.Create("DColorMixer",Eframe)
 	EColor:SetPos(2,Eframe:GetTall() * 0.25)
 	EColor:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.5 - 35)
+
 	function EColor:ValueChanged(col)
 	if( GetDDesigner( ) == nil ) then return end 
-	GetDDesigner( ):SetDrawColor(col)
+	 GetDDesigner( ):SetDrawColor(col)
 
-	if( EPanel ) then
-		if( #EPanel:GetChildren() > 0 ) then
-			for k,v in ipairs( EPanel:GetChildren() ) do
-				if( v:GetSelect() ) then
+	    if( EPanel ) then
+	    	if( #EPanel:GetChildren() > 0 ) then
+			    for k,v in ipairs( EPanel:GetChildren() ) do
+			    	if( v:GetSelect() ) then
 				
-					GetDDesigner( ).layer[v:GetID()].col = col
+				    	GetDDesigner( ).layer[v:GetID()].col = col
 
-				end
-			end
-		end
+				    end
+			    end
+		    end
+	    end
 	end
-	
-	end
-
-
-
 
 	local Scroll = vgui.Create( "DScrollPanel", Eframe ) //Create the Scroll panel
 	Scroll:SetSize( Eframe:GetWide()-4,Eframe:GetTall() * 0.3 - 2 )
 	Scroll:SetPos( 2,Eframe:GetTall()*0.70 )
 
-	 EPanel = vgui.Create( "DIconLayout", Scroll )
+	EPanel = vgui.Create( "DIconLayout", Scroll )
 	EPanel:SetSize( Scroll:GetWide(),Scroll:GetTall() )
 	EPanel:SetPos( 0, 0 )
 	EPanel:SetSpaceY( 5 ) //Sets the space in between the panels on the X Axis by 5
@@ -308,29 +283,56 @@ Name:
 	EPanel:MakeDroppable( "layer", false )
 	EPanel:SetSelectionCanvas( true )
 	EPanel:SetUseLiveDrag( true )
+    EPanel.Tabs = {}
+    EPanel.current = nil
+    EPanel.Clear = function( self ) 
+
+        for k,v in ipairs( self:GetChildren() ) do
+
+            if( v:IsValid() ) then v:Remove() end
+        end 
+    end
 	
-
--- List:Add
-
-
-	--local EPanel = vgui.Create("DPanelList",Eframe)
-	--EPanel:SetPos(2,Eframe:GetTall()*0.70)
-	--EPanel:SetSize(	Eframe:GetWide()-4,Eframe:GetTall() * 0.3 - 2)
-	--EPanel:EnableVerticalScrollbar()
-	local selected = {}
-	local Button_Layer = {}
+	local selected = { }
+	local Button_Layer = { }
 	local sheet_active = nil
-	function EPanel:Think()
 
-	
+--[[---------------------------------------------------------
+Name: PANEL:Think( void )
+-----------------------------------------------------------]]
+function EPanel:Think( )
 
 	if( GetDDesigner( ) == nil ) then return end
-	designer = GetDDesigner( )
-		if( #self:GetChildren() < #designer.layer ) then
-		--print( designer:GetLayer()[ #designer.layer ].id .. "new"  )
-			Button_Layer[ designer:GetLayer()[ #designer.layer ].id ] = EPanel:Add( "DDLayer" )
+    designer = GetDDesigner( )
+    if( self.current == nil ) then self.current = sheet:GetActive().Name end
+    if( self.current != sheet:GetActive().Name ) then 
+    self.Tabs[ self.current ] = { }
+    for k,v in ipairs( Button_Layer ) do
+    
+        table.insert( self.Tabs[ self.current ], { preview = v.rrot, id = v:GetID() } )
+    
+    end 
+   -- PrintTable( self.Tabs[ self.current ] )
+    Button_Layer = { }
+    self:Clear()
+        if( self.Tabs[ sheet:GetActive().Name ] ) then
+            for k,v in ipairs( self.Tabs[ sheet:GetActive().Name ] ) do
+    --
+        
+                Button_Layer[ v.id ] = EPanel:Add( "DDLayer" )
+                Button_Layer[ v.id ]:SetPreView( v.preview )
+                Button_Layer[ v.id ]:SetID( v.id )
+                Button_Layer[ v.id ]:SetSize( EPanel:GetWide(), 60 )
 
-			--Button:Droppable( "layer")
+            end
+        end
+    self:Layout()
+    self.current = sheet:GetActive().Name
+    end
+
+		if( #self:GetChildren() < #designer.layer ) then
+
+			Button_Layer[ designer:GetLayer()[ #designer.layer ].id ] = EPanel:Add( "DDLayer" )
 			Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetSize( EPanel:GetWide(), 60 )
 			if( designer.layer[#designer.layer].typ == "4poly" or designer.layer[#designer.layer].typ == "poly" ) then
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = designer.layer[#designer.layer].poly, col = designer.layer[#designer.layer].col  } )
@@ -342,54 +344,42 @@ Name:
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, col = designer.layer[#designer.layer].col} } )
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetID( #designer.layer )
 			end
-
-
-			--EPanel:AddItem(Button)
-			
 		end 
 
+	 	local key = nil
 
+		for k,v in ipairs( DDP_Designer.Projects ) do
+
+			if( v.panel:IsVisible() ) then
+
+				key = k
+
+			end
+		end
+
+		if( key != nil ) then 
+			if( #designer.layer > #DDP_Designer.Projects[key].layer ) then
 			
+				table.insert(DDP_Designer.Projects[key].layer, Button_Layer[ designer:GetLayer()[ #designer.layer ].id ].rrot )
+			end
+		end
 
-
-	 		local key = nil
-
+		if( sheet_active != sheet:GetActiveTab() ) then
+				
 			for k,v in ipairs( DDP_Designer.Projects ) do
 
-				if( v.panel:IsVisible() ) then
-
-					key = k
-
-				end
-
-			end
-			if( key != nil ) then 
-				if( #designer.layer > #DDP_Designer.Projects[key].layer ) then
-			
-					table.insert(DDP_Designer.Projects[key].layer, Button_Layer[ designer:GetLayer()[ #designer.layer ].id ].rrot )
+				if( v.panel:GetParent() == sheet:GetActiveTab()  ) then
+					print( DDP_Designer.Projects[k].layer.id )
 				end
 			end
-
-
-			if( sheet_active != sheet:GetActiveTab() ) then
-				
-				for k,v in ipairs( DDP_Designer.Projects ) do
-
-					if( v.panel:GetParent() == sheet:GetActiveTab()  ) then
-						print( DDP_Designer.Projects[k].layer.id )
-					end
-				end
-
-				sheet_active = sheet:GetActiveTab()
-			end
+			sheet_active = sheet:GetActiveTab()
+		end
 
 		if( GetDDesigner( ):GetMoving() != nil ) then
 
 			for k,v in ipairs( designer:GetLayer() ) do
 
 				if( v.id == GetDDesigner( ):GetMoving() ) then
-
-				--print( v.id )
 
 					if( v.typ == "rect" or v.typ == "orect" ) then
 						Button_Layer[ v.id ]:SetPreView( { typ = v.typ , parent = designer, data = { x = v.x, y = v.y, w = v.w, h = v.h } } )
@@ -398,15 +388,8 @@ Name:
 					elseif( v.typ == "circle" ) then
 						Button_Layer[ v.id ]:SetPreView( { typ =v.typ , parent = designer, data = { x = v.x, y = v.y, w = v.w} })
 					end
-
-					
-
 				end
-
-
 			end
-
-
 		end
 
 		for k,v in ipairs( self:GetChildren()  ) do
@@ -418,8 +401,9 @@ Name:
 						if( selected[1]:IsValid() ) then
 							selected[1]:SetSelect( false )
 						else
+
 						end
-							table.Empty( selected )
+						table.Empty( selected )
 					end 
 					table.insert( selected, v )
 					designer:SetSelect( v:GetID() )
@@ -427,12 +411,13 @@ Name:
 			end
 		end
 	end
-
-
-	function EPanel:Paint( w, h )
-	surface.SetDrawColor( 0, 0, 0, 255 )
-	surface.DrawOutlinedRect( 0, 0, w, h )
-	end
+--[[---------------------------------------------------------
+Name: PANEL:Paint( number, number ) 
+-----------------------------------------------------------]]
+function EPanel:Paint( w, h )
+	 surface.SetDrawColor( 0, 0, 0, 255 )
+	 surface.DrawOutlinedRect( 0, 0, w, h )
+end
 
 	local save = vgui.Create("DButton",Eframe )
 	save:SetPos(2,33)
@@ -440,7 +425,7 @@ Name:
 	save:SetText("save")
 	save.DoClick = function()
 
-	local pfile = {}
+	local pfile = { }
 	
 	for k,v in ipairs( designer.layer ) do
 	--if( v
@@ -472,8 +457,6 @@ Name:
 			table.insert( pfile, line )
 		end
 	end
-	PrintTable( pfile )
-	Msg("\n")
 
 	if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
 		// overwirte question
@@ -481,14 +464,13 @@ Name:
 		file.Delete("ride/" .. name .. ".txt")
 	end
 
-		for k,v in ipairs( pfile ) do
-			if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
-				file.Write( "ride/" .. name .. ".txt", file.Read("ride/" .. name .. ".txt") .. "\n" .. v .. "" )
-			else
-				file.Write("ride/" .. name .. ".txt", v )
-
-			end
+	for k,v in ipairs( pfile ) do
+		if( file.Exists("ride/" .. name .. ".txt","DATA") ) then
+			file.Write( "ride/" .. name .. ".txt", file.Read("ride/" .. name .. ".txt") .. "\n" .. v .. "" )
+		else
+			file.Write("ride/" .. name .. ".txt", v )
 		end
+	end
 
 	local a,b = 250,25
 	local temp = [[
@@ -518,5 +500,4 @@ end
 	RunString( temp )
 
 	end
-
  end
