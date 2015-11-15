@@ -24,3 +24,4 @@ local e = vgui.Create("DPanel",frame)
 		 e:SetSize(0.95192307692308*frame:GetWide(),0.69077306733167*frame:GetTall())
 		 
  end
+ 

@@ -1,7 +1,81 @@
 
+surface.CreateFont( "Button", {
+	font = "DermaDefault",
+	size = ScrH() * .0166,
+	weight = 1000,
+	blursize = 0,
+	scanlines = 0,
+	antialias = true,
+	underline = false,
+	italic = false,
+	strikeout = false,
+	symbol = false,
+	rotary = false,
+	shadow = false,
+	additive = false,
+	outline = false,
+} )
+
+--RunString
 if( !file.IsDir("DD/db","DATA" ) ) then
 	file.CreateDir("DD/db")
 end
+
+local head = 
+[[==============================================================
+	   Royal Derma Designer Version Alpha 45w15b
+==============================================================
+			Changelog
+
+
+		   Open DermaDesigner
+		    Command: open_dd
+
+
+]]
+local footer = 
+[[==============================================================
+	   
+==============================================================]]
+
+MsgC( Color( 255,215,0 ), head .. "\n" )
+MsgC( Color( 255,215,0 ), footer .. "\n" )
+
+
+	DDP = {}
+	DDP.version = "Alpha 45w15b"
+	DDP.frame = nil
+	DDP.elemente = {}
+	DDP.selected = {}
+	DDP.VGUI={}
+	DDP.vgui = {}
+	DDP.test ={}
+	DDP.toolbox = {}
+	DDP.MousePos = {0,0}
+	DDP.MousePressed = { 0, 0 }
+	DDP.Mousemove = false
+	DDP.Mousepress = false
+	DDP.Name = "Empty"
+	DDP.copied = {}
+	DDP.icon = ""
+
+--[[---------------------------------------------------------
+Name: FilterString( string )
+-----------------------------------------------------------]]
+local function FilterString( str )
+
+newstring = ""
+
+    for i=1,#str do
+
+     if( string.sub( str, i, i ) == "(" or string.sub( str, i, i )  == ")" ) then
+        else
+         newstring = newstring .. string.sub( str, i, i )
+        end
+    end
+    return newstring
+end
+
 
 --[[---------------------------------------------------------
 Name: GetValidMethod( panel, string )
@@ -13,7 +87,7 @@ panel = panel
 if( method == nil ) then return false end
 
 	local Rstring = [[
-				local succ, err = pcall( function() panel:Get]] .. string.Right( method, string.len( method )-3 ) .. [[()]] .. [[ end )  if( succ ) then Check = true else Check = false end	]]
+				local succ, err = pcall( function() panel:Get]] .. FilterString( method ) .. [[()]] .. [[ end )  if( succ ) then Check = true else Check = false end	]]
 	RunString(Rstring)
 
 	return Check
@@ -29,7 +103,7 @@ if( method == nil ) then return nil end
 
 ValueOfMethod = nil
 
-RunString( "ValueOfMethod = DDP.elemente[" ..index .. "]:Get" .. string.Right( method, string.len( method )-3 )  .. "()" )
+RunString( "ValueOfMethod = DDP.elemente[" ..index .. "]:Get" .. FilterString( method )  .. "()" )
 
 return ValueOfMethod
 
@@ -63,7 +137,7 @@ local tab = {}
 	elseif( string.find(  string.lower(str), "+" , 0, true ) or string.find(  string.lower(str), "-" , 0, true ) or string.find(  string.lower(str), "*" , 0, true ) or string.find(  string.lower(str), "/" , 0, true )  ) then
 		return "number"
 	else
-		RunString( " t = type( " .. str .. " ) " )
+		RunString( " t = type( " .. FilterString( str ) .. " ) " )
 		tab[1] = t
 		t = nil
 
@@ -222,9 +296,13 @@ local time = CurTime()
 local needle = { "derma.DefineControl","vgui.Register","AccessorFunc","self:Set" }
 local ingnore = { "SetDraggableName","SetPanel", "SetPropertySheet", "SetPos", "SetSize", "SetTall", "SetWide","SetHeight","SetVisible", "SetKeyboardInputEnabled", "SetMouseInputEnabled","if","end","return"}
 local known = { {name = "SetSaturation", typ = "number"}, { name = "SetHue", typ = "number" }, { name = "SetConVar", typ = "string" }, { name = "SetModel", typ = "string"}, {name = "SetToolTip",  typ = "string" }, { name = "SetMin", typ = "number"}, { name = "SetMax", typ = "number"}, { name = "SetTitle", typ = "string"}, { name = "SetAlpha", typ = "number"}, { name = "SetExpanded", typ = "boolean"}, { name = "SetText", typ = "string" }, { name = "SetValue", typ = "number" }, { name = "SetCaretPos", typ = "number" }, { name = "SetColor", typ = "color" }, { name = "SetFont", typ = "string" }, { name = "SetExpanded", typ = "boolean" }, { name = "SetZPos", typ = "number" }}
+
+
 local t = {}
 local m = {}
 local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
+if( !file.Exists( "dd/db/vgui_raw.txt","DATA") ) then
+
 	for k,v in ipairs( files ) do
 		local str =  file.Read("vgui/".. v .. "","LUA") or ""
 		--	print( str )
@@ -243,7 +321,15 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 			end
 	end
 
+    file.Write("dd/db/vgui_raw.txt", util.TableToJSON( t ) )
+else
+    t = util.JSONToTable( file.Read( "dd/db/vgui_raw.txt","DATA" ) )
+end
+  
+
+
 	if( !file.Exists( "dd/db/vgui.txt","DATA") and !file.Exists( "dd/db/vgui_names.txt","DATA") ) then
+
 	--[[---------------------------------------------------------
    		local str =  file.Read("vgui/".. v .. "","LUA") or ""
 			--	print( str )
@@ -267,16 +353,17 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 		for k,v in ipairs( files ) do
 
 		--All SetValues
-
+        --RunString
 		local str =  file.Read("vgui/".. v .. "","LUA") or ""
 			for key,value in ipairs( string.Explode( "\n", str ) ) do
 				local found = string.find(  string.lower(value), string.lower(needle[4]) , 0 )
-
+               -- print( DDP.vgui[#DDP.vgui] )
 				if( found ) then
 					local name = (string.Explode( "" .. [[) ]] .. "", value ) )
 					local show = true
 					local func = ""
 					local typ = ""
+                    
 						for a,b in ipairs( name ) do
 
 							for c,d in ipairs( ingnore ) do
@@ -300,8 +387,8 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 					--get typ
 					
 					if( show ) then
-			--		print( "Panel: " .. v .. " " .. func)
-				--	print( func .. "  < >  " .. GetTypByString(TrimString(typ))  .."    " .. v )
+				
+					
 						if( GetClassNameByFile( v ) != nil ) then
 							if( DDP.vgui[GetClassNameByFile( v )] != nil ) then
 							local f = false
@@ -321,10 +408,13 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 								 end
 
 								if( !exist ) then
+
 									if( f ) then
 										table.insert(DDP.vgui[GetClassNameByFile( v )], content )
+
 									else
 										table.insert(DDP.vgui[GetClassNameByFile( v )], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
+
 									end
 								end
 							else
@@ -340,15 +430,17 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 									if( #content < 1 ) then
 									else
 										table.insert(DDP.vgui[GetClassNameByFile( v )], content )
+
 									end
 								else
 									table.insert(DDP.vgui[GetClassNameByFile( v )], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
+
 								end
 							end
 						else
 
 						end
-					--print(func)
+				--	print(func)
 					end
 				else
 
@@ -356,16 +448,22 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 
 			end
 		end
-		file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) )
+    --    print( "check" )
+        
+        if( #DDP.vgui > 0 ) then
+        print( "Write DDP.vgui")
+        PrintTable( DDP.vgui )
+		    file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) )
+        end
 
 
---	PrintTable( m )
+
 		for k,v in ipairs( t ) do
 
 		local classname = (string.Explode( "" .. [["]] .. "", v )[2] )
 			if( classname != nil and classname != "" ) then
 				if( vgui.GetControlTable(classname) ) then
-					print( classname )
+
 					table.insert( DDP.toolbox, { classname = classname, count = 0 } ) 
 
 				end
@@ -373,12 +471,18 @@ local files, dir = file.Find( "vgui/*.lua", "LUA", "nameasc" )
 			end
 
 		end
-		file.Write( "dd/db/vgui_names.txt", util.TableToJSON( DDP.toolbox ) )
+        if( # DDP.toolbox > 0 ) then
+		    file.Write( "dd/db/vgui_names.txt", util.TableToJSON( DDP.toolbox ) )
+        end
 	else
-		local tab = util.JSONToTable( file.Read( "dd/db/vgui.txt","DATA" ) )
-		local names = util.JSONToTable( file.Read( "dd/db/vgui_names.txt","DATA" ) )
-		DDP.vgui = table.Copy( tab )
-		DDP.toolbox = table.Copy( names )
+        if( file.Exists( "dd/db/vgui.txt","DATA" ) ) then
+		    local tab = util.JSONToTable( file.Read( "dd/db/vgui.txt","DATA" ) )
+             DDP.vgui = table.Copy( tab )
+        end
+        if( file.Exists( "dd/db/vgui_names.txt","DATA" ) ) then
+		    local names = util.JSONToTable( file.Read( "dd/db/vgui_names.txt","DATA" ) )
+		    DDP.toolbox = table.Copy( names )
+        end
 	end
 	--PrintTable( DDP.vgui )
 hook.Call( "DDP_panelswasloaded", nil, name )	
@@ -387,7 +491,7 @@ GetAllPanels()
 
 
 
-//RunString("if(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() != nil ) then AS[1] = type(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() ) else Msg(tostring(NIL))end")
+//RunString("if(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() != nil ) then AS[1] = type(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() ) else Msg(tostring(NIL)end")
 
 --[[---------------------------------------------------------
  Name: GetCurrentCode(  )
@@ -406,32 +510,34 @@ frame:SetSize( ]] .. DDP.frame:GetWide() / ScrW() .. [[ * ScrW(), ]] .. DDP.fram
 frame:MakePopup() 
 ]]
 
-
+-- Bug if list includes [null] clear list before! ( Codeview )
 
 for k,v in ipairs( DDP.elemente ) do
-	 str = [[ local e = vgui.Create( "]] .. v.ClassName .. [[", ]] .. parent .. [[ )
+    if( v != nil ) then
+        if( v:IsValid() ) then
+	         str = [[ local e = vgui.Create( "]] .. v.ClassName .. [[", ]] .. parent .. [[ )
 						 e:SetPos( ]] .. v.x / DDP.frame:GetWide()  .. " * " .. parent .. [[:GetWide(), ]] .. v.y / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
 						 e:SetSize( ]] .. v:GetWide() / DDP.frame:GetWide() .. " * " .. parent .. [[:GetWide(), ]] .. v:GetTall() / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
 				]] 
    
-	for a,b in ipairs( DDP.vgui[v.ClassName] ) do
+	        for a,b in ipairs( DDP.vgui[v.ClassName] or {} ) do
 
-		if( GetValidMethod( v, b.name ) ) then 
-		value_X = nil
+		        if( GetValidMethod( v, b.name ) ) then 
+		            value_X = nil
 			
-			RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. string.Right( b.name, string.len( b.name )-3 )  .. "()" )
-			if( type( value_X ) == "string" ) then
-			str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
+		    	    RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. FilterString( b.name ) .. "()" )
+			        if( type( value_X ) == "string" ) then
+			        str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
 						]]
 
-			else
-			str = str .. [[ e:]] .. b.name .. [[( ]] .. tostring(value_X) .. [[ )
+			        else
+			        str = str .. [[ e:]] .. b.name .. [[( ]] .. tostring(value_X) .. [[ )
 						]]
-			end
-		
-		end
-      
-	end
+			        end
+		        end
+	        end
+        end
+    end
      ostr = ostr .. "\n" ..  str
 end
 
@@ -446,7 +552,7 @@ Name: CreateFrameFile( name )
 -----------------------------------------------------------]]
 function CreateFrameFile( name )
 local name = name .. "_lua"
-local path = "ride/projects/"
+local path = "db/projects/"
 local parent = "frame"
 local fname = "RunWindow"
 
@@ -460,29 +566,33 @@ frame:SetSize( ]] .. DDP.frame:GetWide() / ScrW() .. [[ * ScrW(), ]] .. DDP.fram
 
 
 for k,v in ipairs( DDP.elemente ) do
-	local str = [[ local e = vgui.Create( "]] .. v.ClassName .. [[", ]] .. parent .. [[ )
+    if( v != nil ) then
+        if( v:IsValid() ) then
+	        local str = [[ local e = vgui.Create( "]] .. v.ClassName .. [[", ]] .. parent .. [[ )
 						 e:SetPos( ]] .. v.x / DDP.frame:GetWide()  .. " * " .. parent .. [[:GetWide(), ]] .. v.y / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
 						 e:SetSize( ]] .. v:GetWide() / DDP.frame:GetWide() .. " * " .. parent .. [[:GetWide(), ]] .. v:GetTall() / DDP.frame:GetTall() .. " * " ..  parent .. [[:GetTall() )
 				]] 
-	for a,b in ipairs( DDP.vgui[v.ClassName] ) do
+	        for a,b in ipairs( DDP.vgui[v.ClassName] ) do
 
-		if( GetValidMethod( v, b.name ) ) then 
-		value_X = nil
+	        	if( GetValidMethod( v, b.name ) ) then 
+	            	value_X = nil
 			
-			RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. string.Right( b.name, string.len( b.name )-3 )  .. "()" )
-			if( type( value_X ) == "string" ) then
-			str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
+		           	RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. FilterString( b.name )  .. "()" )
+			        if( type( value_X ) == "string" ) then
+		            	str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
 						]]
-			else
-			str = str .. [[ e:]] .. b.name .. [[( ]] .. tostring(value_X) .. [[ )
+		        	else
+		        	str = str .. [[ e:]] .. b.name .. [[( ]] .. tostring(value_X) .. [[ )
 						]]
-			end
+			        end
 			
-		end
+		        end
 
-	end
+	        end
+            file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n" .. str .. "")
+        end
+    end
 
-	file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n" .. str .. "")
 end
 
 	file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n end\n" .. fname .. "()")
@@ -658,7 +768,7 @@ end
 function CreateProjectFile( name )
 
 --fillme!
-local path = "ride/projects/"
+local path = "db/projects/"
 -- if projects folder dont exists
 if( !file.IsDir( path, "DATA" ) ) then file.CreateDir( path ) end
 -- if file exists do ... bla
@@ -696,7 +806,7 @@ end
    Name: LoadProjectFile
 -----------------------------------------------------------]]
 function LoadProjectFile( name )
-local path = "ride/projects/"
+local path = "db/projects/"
 	if( !file.Exists( path .. name .. ".txt", "DATA" ) ) then LocalPlayer():ChatPrint("File: " .. name .. " doesnt exists!") return end
 	local tab = util.JSONToTable( file.Read( path .. name .. ".txt", "DATA") )
 	CreateWindowFromFile( tab )
@@ -720,32 +830,5 @@ function AutoSaveProjectFile( name, content )
 
 end
 
---[[---------------------------------------------------------
-   Name: GetValidMethods
-   NOTE: DELETE ?!
------------------------------------------------------------]]
-function GetValidMethods( gui )
-t = {}
-t2 = {}
-AST = gui
-for k,v in ipairs( DDP.VGUI ) do
-	if( v.vgui == gui.ClassName ) then
-		for a,b in ipairs( v.methods ) do
-			local Rstring = [[
-				local succ, err = pcall( function() AST:Get]] .. string.Right( b, string.len( b )-3 ) .. [[()]] .. [[ end ) 
-	
-				table.insert(t,{ name = "Get]] .. string.Right( b, string.len( b )-3 ).. [[()", t = type(AST:Get]] .. string.Right( b, string.len( b )-3 ).. [[() )} ) 
-			
-				]]
-			RunString(Rstring)
-		end
-	else
 
-	end
-end
 
-local rt = table.Copy(t)
-t,t2,AST = nil
-PrintTable(rt)
-
-end

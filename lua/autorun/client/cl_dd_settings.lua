@@ -4,7 +4,7 @@
  local frame = vgui.Create("GMenu")
 frame:SetPos(t.x,t.y)
 frame:SetSize(t.w,t.h)
-frame:SetDragable( false )
+frame:SetDraggable( false )
  frame:MakePopup()
 
  local e = vgui.Create("DButton",frame)
@@ -39,7 +39,7 @@ frame:SetDragable( false )
  local frame = vgui.Create("GMenu")
 frame:SetPos(ScrW()*.125,ScrH()*.125)
 frame:SetSize(ScrW() * .5,ScrH() * .5) 
-frame:SetDragable( false )
+frame:SetDraggable( false )
  frame:MakePopup()
 
  local selectedm = ""
@@ -50,18 +50,18 @@ frame:SetDragable( false )
 	board:SetPos(1,30)
 	board:SetSize(frame:GetWide()*.25,frame:GetTall()-30)
 	board:AddTab( "Settings" )
-	board:AddTab( "Color Theme" )
+--	board:AddTab( "Color Theme" )
 	board:AddTab( "VGUI ELements" )
-	board:AddTab( "GUI-Designer" )
-	board:AddTab( "VGUI Debug" )
-	board:AddTab( "Scoreboard-Creator" )
-	board:AddTab( "Projects" )
-	board:AddTab( "Stats" )
+--	board:AddTab( "GUI-Designer" )
+--	board:AddTab( "VGUI Debug" )
+--	board:AddTab( "Scoreboard-Creator" )
+--	board:AddTab( "Projects" )
+--	board:AddTab( "Stats" )
 
 
 	local panel = vgui.Create( "DPanelList")
-	panel:SetSize(  board.panel[3]:GetWide()*.3, board.panel[3]:GetTall()*.6)
-	panel:SetPos( board.panel[3]:GetWide() - board.panel[3]:GetWide()*.3, 0 )
+	panel:SetSize(  board.panel[2]:GetWide()*.3, board.panel[2]:GetTall()*.6)
+	panel:SetPos( board.panel[2]:GetWide() - board.panel[2]:GetWide()*.3, 0 )
 	panel:EnableVerticalScrollbar()
 
 	panel.VBar.btnUp:SetVisible(false)
@@ -73,11 +73,11 @@ frame:SetDragable( false )
 		 return true
 	end
 		 
-		board:AddItem(panel,3)
+		board:AddItem(panel,2)
 
 	local panel2 = vgui.Create( "DPanel")
-	panel2:SetSize(  board.panel[3]:GetWide()*.3, board.panel[3]:GetTall()*.4)
-	panel2:SetPos( board.panel[3]:GetWide() - board.panel[3]:GetWide()*.3, board.panel[3]:GetTall()*.6 )
+	panel2:SetSize(  board.panel[2]:GetWide()*.3, board.panel[2]:GetTall()*.4)
+	panel2:SetPos( board.panel[2]:GetWide() - board.panel[2]:GetWide()*.3, board.panel[2]:GetTall()*.6 )
 
 
 
@@ -115,7 +115,7 @@ end
 
 	local AppList = vgui.Create( "DListView" )
 	AppList:SetMultiSelect( false )
-	AppList:SetSize(  board.panel[3]:GetWide()*.7, board.panel[3]:GetTall())
+	AppList:SetSize(  board.panel[2]:GetWide()*.7, board.panel[2]:GetTall())
 	AppList:SetPos(0,0 )
 	AppList:SetDrawBackground(false)
 	AppList:AddColumn( "Methods" )
@@ -155,7 +155,7 @@ end
 		surface.DrawRect(0,0,w,h)
 	end
 
-	board:AddItem(AppList,3)
+	board:AddItem(AppList,2)
 
 
 
@@ -214,7 +214,7 @@ end
 	 file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) )
 	end
 
-	board:AddItem(panel2,3)
+	board:AddItem(panel2,2)
 
 end
 
@@ -267,3 +267,4 @@ mp:SetPos( 15,50)
 mp:SetSize( 200,200)
 
 end
+

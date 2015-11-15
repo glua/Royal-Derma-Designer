@@ -8,6 +8,9 @@
 --LocalPlayer():ChatPrint
 
 CreateClientConVar("dd_gap",15,false,false)
+CreateClientConVar("dd_edge_show_vertical",0.3,false,false)
+CreateClientConVar("dd_edge_show_horizontally",0.3,false,false)
+
 
 surface.CreateFont( "Test_font", {
 	font = "DermaDefault",
@@ -26,7 +29,7 @@ surface.CreateFont( "Test_font", {
 	outline = false,
 } )
 --SetZPos
-
+print( "main loaded" )
 --[[---------------------------------------------------------
 				    2
 			==================
@@ -49,32 +52,36 @@ local DDP_PANEL_BOTTOM = 4
 local function Main()
 local time = CurTime()
 local Mainf = vgui.Create( "GMenu" )
-Mainf:SetPos( ScrW()-350, 0 )
-Mainf:SetSize( 350, ScrH() )
-Mainf:SetTitle( "Derma Designer Alpha 0.1" )
-Mainf:SetDragable( false )
+Mainf:SetPos( ScrW() - .1817 * ScrW(), 0 )
+Mainf:SetSize(  .1817 * ScrW(), ScrH() )
+Mainf:SetTitle( "Derma Designer " .. DDP.version )
+Mainf:SetDraggable( false )
 Mainf:SetVisible( true )
 Mainf:MakePopup()
 
 	  local fadeout = vgui.Create("DImageButton",Mainf)
 	  fadeout:SetPos(0,0)
-	  fadeout:SetSize(32,32)
+	  fadeout:SetSize( Mainf:GetWide() * .0914, 30 )
 	  fadeout:SetImage("DD/gui/close.png")
 	  fadeout.DoClick = function()
 
 	  if( fadeout:GetImage() == "DD/gui/close.png" ) then
 		fadeout:SetImage("DD/gui/open.png")
-		Mainf:SetSize( 32, 32 )
-		Mainf:SetPos(ScrW()-32,0)
+		Mainf:SetSize( fadeout:GetWide(), fadeout:GetTall() )
+		Mainf:SetPos(ScrW() - fadeout:GetWide(),0)
 		Mainf:SetTitle( "" )
 		Mainf:SetShowClose(false)
+        if( DDP.frame:IsValid() ) then
+          DDP.frame:SetVisible( false )
+        end
 	  else
+      
 		  fadeout:SetImage("DD/gui/close.png")
-		  Mainf:SetPos( ScrW()-350, 0 )
-		  Mainf:SetSize( 350, ScrH() )
-		  Mainf:SetTitle( "Derma Designer Alpha 0.1" )
+		  Mainf:SetPos( ScrW() - .1817 * ScrW(), 0 )
+		  Mainf:SetSize( .1817 * ScrW(), ScrH() )
+		  Mainf:SetTitle( "Derma Designer " .. DDP.version )
 		  Mainf:SetShowClose(true)
-			if( !DDP.frame:IsVisible() ) then
+			if( DDP.frame:IsValid() ) then
 				DDP.frame:SetVisible( true )
 			end
 		end
@@ -82,8 +89,8 @@ Mainf:MakePopup()
 	  end
 
 	   local t = vgui.Create("GTab",Mainf)
-		  t:SetPos(0,32)
-		  t:SetSize(Mainf:GetWide(),50)
+		  t:SetPos(0,30)
+		  t:SetSize(Mainf:GetWide(), Mainf:GetTall() * .0416 )
 		  t:GetParent( Mainf )
 		  t:AddTab(" Toolbox " )
 		  t:AddTab(" Settings " )
@@ -103,7 +110,7 @@ Mainf:MakePopup()
 		  local open = vgui.Create("GMenuButton",starten)
 		  open:SetText("project open")
 		  open:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.1)
-		  open:SetSize(200,25)
+		  open:SetSize(Mainf:GetWide(), Mainf:GetTall() * .0208 )
 		  function open:Clicked()
 			 LoadTheFile()
 		  end
@@ -111,7 +118,7 @@ Mainf:MakePopup()
 		  local save = vgui.Create("GMenuButton",starten)
 		  save:SetText("project save")
 		  save:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.17)
-		  save:SetSize(200,25)
+		  save:SetSize(Mainf:GetWide(), Mainf:GetTall() * .0208)
 		  function save:Clicked()
 			  SaveTheFile()
 		  end
@@ -119,39 +126,35 @@ Mainf:MakePopup()
 		  local prun = vgui.Create("GMenuButton",starten)
 		  prun:SetText("project debug")
 		  prun:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.24)
-		  prun:SetSize(200,25)
+		  prun:SetSize(Mainf:GetWide(), Mainf:GetTall() * .0208)
 			  function prun:Clicked()
 			  CreateFrameFile( DDP.Name )
 		  end
 		   local Skincreator = vgui.Create("GMenuButton",starten)
 		  Skincreator:SetText("skin creator")
+          Skincreator:SetDisabled( true )
 		  Skincreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.31)
-		  Skincreator:SetSize(200,25)
+		  Skincreator:SetSize(Mainf:GetWide(), Mainf:GetTall()* .0208)
 			  function Skincreator:Clicked()
 			--  NewTemplate()
 			PaintFrame( "unknown" )
 		  end
 
 		   local Settings = vgui.Create("GMenuButton",starten)
-		  Settings:SetText("Settings")
+		  Settings:SetText("Controls")
 		  Settings:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.38)
-		  Skincreator:SetSize(250,25)
+		  Settings:SetSize(Mainf:GetWide(), Mainf:GetTall() *.0208)
 			  function Settings:Clicked()
 			  Options()
 		  end
 
 		  local Scoreboardcreator = vgui.Create("GMenuButton",starten)
 		  Scoreboardcreator:SetText("scoreboard creator")
+          Scoreboardcreator:SetDisabled( true )
 		  Scoreboardcreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.45)
-		  Scoreboardcreator:SetSize(200,25)
+		  Scoreboardcreator:SetSize(Mainf:GetWide(), Mainf:GetTall()* .0208)
 			  function Scoreboardcreator:Clicked()
 				// fade out main
-
-					fadeout:SetImage("DD/gui/open.png")
-					Mainf:SetSize( 32, 32 )
-					Mainf:SetPos(ScrW()-32,0)
-					Mainf:SetTitle( "" )
-					Mainf:SetShowClose(false)
 
 					if( DDP.frame != nil ) then
 
@@ -164,6 +167,8 @@ Mainf:MakePopup()
 				// open scoreboard ... 
 				scoreboard_menu()
 		  end
+		 
+
 
 
 		  t:AddItem(starten,2)
@@ -179,13 +184,29 @@ Mainf:MakePopup()
 			draw.SimpleText( "Latest" , "Test_font", w * 0.1, h * 0.03, Color(255,255,255,255), 0, 1 )
 		  end
 		  t:AddItem(zuletzt,2)
-		  local bc = {1,2,3,4,5,6,7,8,9}
-		  for k,v in ipairs(bc) do
+
+		  --[[ takes to long ....
+		 local temp = {}
+		 for k,v in ipairs( file.Find( "ride/projects/*.txt","DATA" ) ) do
+		    if( string.find( v, "lua", 0, true ) == nil ) then
+			 table.insert( temp,{ time = file.Time( "ride/projects/" .. v  , "DATA" )  , name = v } ) 
+			end
+		 end
+		 
+		 table.SortByMember( temp, "time" )
+
+		  for k,v in ipairs( temp ) do
+
+			if( k < 6 ) then
 			 local test = vgui.Create("GMenuButton",zuletzt)
-			 test:SetText("test" .. k .. "")
+			 test:SetText( string.TrimRight(  v.name, ".txt" ) )
 			 test:SetPos( zuletzt:GetWide() * 0.1, zuletzt:GetTall() * (0.03 + (0.035*k)) )
 			 test:SetSize(200,25)
-		  end
+			end
+		end
+
+		--  print( os.date( "%d.%m.%Y", file.Time( "ride\projects\*.txt", "DATA" ) ) )
+		--]]
 
 		  panel = vgui.Create( "DPanelList")
 		  panel:SetSize(  Mainf:GetWide()+11, Mainf:GetTall()-Mainf:GetTall()*0.5)
@@ -206,7 +227,7 @@ Mainf:MakePopup()
 		  for k,v in ipairs( DDP.toolbox ) do
 			DDListButtom = vgui.Create( "DDListButtom" )
 			DDListButtom:SetPos( 25, 50 ) 
-			DDListButtom:SetImage("DD/icons/" .. v.classname .. ".png" )
+			DDListButtom:SetImage("DD/icons/" .. v.classname .. ".png" )  --Game freeze huge fps drop!
 
 			--"DD/icons/default.png"
 			DDListButtom:Droppable("ele")
@@ -264,25 +285,6 @@ Mainf:MakePopup()
 				Row2:SetValue( DDP.selected[1]:IsVisible() )
 				Row2.DataChanged = function( _, val ) DDP.selected[1]:SetVisible(tobool(val)) print(val)end
 
-				Row3 = DProperties:CreateRow( "Settings", "X" )
-				Row3:Setup( "Float", {min = 0, max = ScrW()} )
-				Row3:SetValue( DDP.selected[1].x )
-				Row3.DataChanged = function( _, val ) DDP.selected[1].x = val end
-
-				Row4 = DProperties:CreateRow( "Settings", "Y" )
-				Row4:Setup( "Float", {min = 0, max = ScrH()} )
-				Row4:SetValue( DDP.selected[1].y )
-				Row4.DataChanged = function( _, val ) DDP.selected[1].y = val end
-
-				Rowa = DProperties:CreateRow( "Settings", "W" )
-				Rowa:Setup( "Float", {min = 0, max = ScrW()} )
-				Rowa:SetValue( DDP.selected[1]:GetWide() )
-				Rowa.DataChanged = function( _, val ) DDP.selected[1]:SetWide(val) end
-
-				Rowb = DProperties:CreateRow( "Settings", "H" )
-				Rowb:Setup( "Float", {min = 0, max = ScrH()} )
-				Rowb:SetValue( DDP.selected[1]:GetTall() )
-				Rowb.DataChanged = function( _, val ) DDP.selected[1]:SetTall(val) end
 				if( DDP.vgui[DDP.selected[1].ClassName] ) then
 					
 						AS = {}
@@ -411,10 +413,10 @@ line:SetPos(0,0)
 line:SetSize(5,0)
 line:SetZPos(32766)
 line:SetVisible(true)
-function line:Paint()
+function line:Paint( w, h )
 
 surface.SetDrawColor(255,0,0,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+surface.DrawRect(0,0,w,h)
 end
 
 
@@ -424,10 +426,10 @@ line2:SetPos(0,0)
 line2:SetSize(5,0)
 line2:SetZPos(32766)
 line2:SetVisible(true)
-function line2:Paint()
+function line2:Paint( w, h )
 
 surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+surface.DrawRect(0,0,w,h)
 end
 
 --[[---------------------------------------------------------
@@ -453,12 +455,72 @@ line4:SetPos(0,0)
 line4:SetSize(5,0)
 line4:SetZPos(32766)
 line4:SetVisible(true)
-function line4:Paint()
+function line4:Paint( w, h )
 surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+surface.DrawRect(0,0,w,h)
 end
 
+
+--[[---------------------------------------------------------
+GAP`s
+Vertical: 
+-----------------------------------------------------------]]
+
+line5 = vgui.Create("DButton",DDP.frame)
+line5:SetText("")
+line5:SetPos(0,0)
+line5:SetSize(5,0)
+line5:SetZPos(32766)
+line5:SetVisible(true)
+function line5:Paint( w, h )
+surface.SetDrawColor(0,0,255,255)
+surface.DrawRect(0,0,w,h)
+end
+
+line6 = vgui.Create("DButton",DDP.frame)
+line6:SetText("")
+line6:SetPos(0,0)
+line6:SetSize(5,0)
+line6:SetZPos(32766)
+line6:SetVisible(true)
+function line6:Paint( w, h )
+surface.SetDrawColor(0,0,255,255)
+surface.DrawRect(0,0,w,h)
+end
+
+
+--[[---------------------------------------------------------
+GAP`s
+ Horizontal: 
+-----------------------------------------------------------]]
+
+line7 = vgui.Create("DButton",DDP.frame)
+line7:SetText("")
+line7:SetPos(0,0)
+line7:SetSize(5,0)
+line7:SetZPos(32766)
+line7:SetVisible(true)
+function line7:Paint( w, h )
+surface.SetDrawColor(0,0,255,255)
+surface.DrawRect(0,0,w,h)
+end
+
+line8 = vgui.Create("DButton",DDP.frame)
+line8:SetText("")
+line8:SetPos(0,0)
+line8:SetSize(5,0)
+line8:SetZPos(32766)
+line8:SetVisible(true)
+function line8:Paint( w, h )
+surface.SetDrawColor(0,0,255,255)
+surface.DrawRect(0,0,w,h)
+end
+
+
+
 Main()
+
+
 	 
 end
 concommand.Add("open_dd",OpenDDD)
@@ -520,8 +582,8 @@ menu_pressed:AddOption( "paste", function()
 
 menu_pressed = nil  end ) 
 end
-menu_pressed:AddOption( "cut", function() if( #DDP.copied > 0 ) then table.Empty(DDP.copied) end table.insert( DDP.copied, { classname =  DDP.selected[1].ClassName, text = DDP.selected[1]:GetText(), w = DDP.selected[1]:GetWide(), h = DDP.selected[1]:GetTall() } ) DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
-menu_pressed:AddOption( "delete", function() DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
+menu_pressed:AddOption( "cut", function() if( #DDP.copied > 0 ) then table.Empty(DDP.copied) end for k,v in ipairs( table.GetKeys( DProperties.Categories ) ) do DProperties.Categories[v]:Clear() end table.insert( DDP.copied, { classname =  DDP.selected[1].ClassName, text = DDP.selected[1]:GetText(), w = DDP.selected[1]:GetWide(), h = DDP.selected[1]:GetTall() } ) DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
+menu_pressed:AddOption( "delete", function() for k,v in ipairs( table.GetKeys( DProperties.Categories ) ) do DProperties.Categories[v]:Clear() end DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
 menu_pressed:AddOption( "Code display", function() CodeView(  GetCurrentCode( ), DDP.Name ) menu_pressed = nil  end ) 
 menu_pressed:Open()
 
@@ -558,14 +620,17 @@ if( DDP.frame == nil) then return end
 		end
 
 		if( DDP.selected[1] == nil ) then return end
+        if( !DDP.selected[1]:IsValid() ) then return end
 
 	DDP.selected[1]:SetZPos( #DDP.elemente + 1 )
 
 		for k,v in ipairs( DDP.elemente ) do
 
 			if( v != DDP.selected[1] ) then
-
-				v:SetZPos( 0 )
+                if( !v:IsValid() ) then
+                else
+				    v:SetZPos( 0 )
+                end
 
 			end
 
@@ -585,23 +650,26 @@ if( DDP.frame == nil) then return end
 
 			if( DDP.selected[1] ) then
 				if( v != DDP.selected[1] ) then
-					if( DDP.Mousepress ) then
-						local x,y = v:LocalCursorPos()
-						if( x > 0 and x < v:GetWide() and y > 0 and y < v:GetTall() ) then
-							if( table.HasValue( TYPE, v.ClassName ) ) then
-								px = DDP.selected[1].x - v.x
-								py = DDP.selected[1].y - v.y
+                    if( !v:IsValid() ) then 
+                    else
+					    if( DDP.Mousepress ) then
+					    	local x,y = v:LocalCursorPos()
+						    if( x > 0 and x < v:GetWide() and y > 0 and y < v:GetTall() ) then
+						    	if( table.HasValue( TYPE, v.ClassName ) ) then
+								    px = DDP.selected[1].x - v.x
+								    py = DDP.selected[1].y - v.y
 								
-								parent = v
-							
+								    parent = v
+							    
 
-							end
-						else
-								px = DDP.selected[1].x
-								py =  DDP.selected[1].y
-								parent = DDP.frame
-						end
-					end
+						    	end
+						    else
+							    	px = DDP.selected[1].x
+								    py =  DDP.selected[1].y
+								    parent = DDP.frame
+						    end
+					    end
+                    end
 				end
 			end
 		end
@@ -613,19 +681,13 @@ if( DDP.frame == nil) then return end
 		end
 		
 		if( DDP.selected[1] and !input.IsMouseDown( MOUSE_LEFT )  ) then
-			
-			--LocalPlayer():ChatPrint( tostring( parent ) )
-		
-			--LocalPlayer():ChatPrint( px )
+
 			DDP.selected[1].x = px
 			DDP.selected[1].y = py
-		--	LocalPlayer():ChatPrint( DDP.selected[1].x )
+
 				DDP.selected[1]:SetParent( parent or DDP.selected[1]:GetParent() ) 
-							
-		--	DDP.selected[1]:SetPos( px or 5 , py or 5 )
 		
 		else
-		--LocalPlayer():ChatPrint( tostring( DDP.Mousepress ) .. " " .. tostring( px ) .. " " .. tostring( py ) .. " " .. tostring( parent ) ) 
 
 		end
 
@@ -634,116 +696,165 @@ if( DDP.frame == nil) then return end
 			DDP.selected[1]:SetParent( DDP.frame )
 
 		end
-	--	LocalPlayer():ChatPrint( DDP.selected[1].x ) 
-		// parent
-
-
+		-- parent
 
 		--[[---------------------------------------------------------
 				Lines WIP!!!!!
 		-----------------------------------------------------------]]
 		local x1,y1 = DDP.selected[1]:GetPos()
 		-- change names of local values bad :(
-		local cx,cy = DDP.frame:LocalCursorPos()
 		local hit = 0
 		local hit2 = 0
 		local hit3 = 0
 		local hit4 = 0
 		for a,b in ipairs( DDP.elemente) do
-			local x2,y2 = b:GetPos()
+            if( !b:IsValid() ) then
+            else
+			    local x2,y2 = b:GetPos()
 			--vertikal
-			if( x1 == x2 and b != DDP.selected[1] ) then
-				hit = hit + 1
-				x2,y2 = DDP.elemente[a]:GetPos()
-				if( y1 > y2 ) then
-					line:SetPos(x1-line:GetWide(),y2)
-					line:SetSize(2,y1-y2+DDP.selected[1]:GetTall())
+			    if( x1 == x2 and b != DDP.selected[1] ) then
+				    hit = hit + 1
+				    x2,y2 = DDP.elemente[a]:GetPos()
+				    if( y1 > y2 ) then
+					    line:SetPos(x1-line:GetWide(),y2)
+					    line:SetSize(2,y1-y2+DDP.selected[1]:GetTall())
 				--	DDP.selected[1]:SetVerticalTolerance(true)
-					DDP.selected[1].horizontal = true
-					line:SetVisible(true)
-				else
-					line:SetPos(x1-line:GetWide(),y1)
-					line:SetSize(2,y2-y1+b:GetTall())
+					    DDP.selected[1].horizontal = true
+					    line:SetVisible(true)
+				    else
+					    line:SetPos(x1-line:GetWide(),y1)
+					    line:SetSize(2,y2-y1+b:GetTall())
 				--	DDP.selected[1]:SetVerticalTolerance(true)
-					DDP.selected[1].horizontal = true
-					line:SetVisible(true)
-				end
-			end
+					    DDP.selected[1].horizontal = true
+					    line:SetVisible(true)
+				    end
+			    end
 			--horizontal
-			if( y1 == y2 and b != DDP.selected[1] ) then 
-				hit3 = hit3 + 1
-				if( x1 > x2 ) then
+			    if( y1 == y2 and b != DDP.selected[1] ) then 
+				    hit3 = hit3 + 1
+				    if( x1 > x2 ) then
 				
-					line3:SetPos(x2,y2) 
-					line3:SetSize((x1-x2)+DDP.selected[1]:GetWide(),2)
-				--	DDP.selected[1]:SetHorizontalTolerance(true)
-					DDP.selected[1].vertical = true
-					line3:SetVisible(true)
-				else
-					line3:SetPos(x1,y2) 
-					line3:SetSize(x2-x1+b:GetWide(),2)
-					DDP.selected[1].vertical = true
+					    line3:SetPos(x2,y2) 
+					    line3:SetSize((x1-x2)+DDP.selected[1]:GetWide(),2)
+			--	DDP.selected[1]:SetHorizontalTolerance(true)
+					    DDP.selected[1].vertical = true
+					    line3:SetVisible(true)
+				    else
+					    line3:SetPos(x1,y2) 
+					    line3:SetSize(x2-x1+b:GetWide(),2)
+					    DDP.selected[1].vertical = true
 			--		DDP.selected[1]:SetHorizontalTolerance(true)
-					line3:SetVisible(true)
+					    line3:SetVisible(true)
 					
-				end
+				    end
 
-			end
+			    end
 			--vertikal
-			if( x1+DDP.selected[1]:GetWide() == x2 + b:GetWide() and b != DDP.selected[1] ) then
-				hit2 = hit2 + 1
-				if( y1 > y2 ) then
-					line2:SetPos(x1+DDP.selected[1]:GetWide(),y2) 
-					line2:SetSize(2,y1-y2+DDP.selected[1]:GetTall())
+			    if( x1+DDP.selected[1]:GetWide() == x2 + b:GetWide() and b != DDP.selected[1] ) then
+				    hit2 = hit2 + 1
+				    if( y1 > y2 ) then
+					    line2:SetPos(x1+DDP.selected[1]:GetWide(),y2) 
+					    line2:SetSize(2,y1-y2+DDP.selected[1]:GetTall())
+			--		    DDP.selected[1]:SetVerticalTolerance(true)
+					    DDP.selected[1].horizontal = true
+					    line2:SetVisible(true)
+				    elseif( y2 > y1 ) then
+					    line2:SetPos(x1+DDP.selected[1]:GetWide(),y1) 
+					    line2:SetSize(2,y2-y1+b:GetTall())
 			--		DDP.selected[1]:SetVerticalTolerance(true)
-					DDP.selected[1].horizontal = true
-					line2:SetVisible(true)
-				elseif( y2 > y1 ) then
-					line2:SetPos(x1+DDP.selected[1]:GetWide(),y1) 
-					line2:SetSize(2,y2-y1+b:GetTall())
-			--		DDP.selected[1]:SetVerticalTolerance(true)
-					DDP.selected[1].horizontal = true
-					line2:SetVisible(true)
-				end
-			end
+					    DDP.selected[1].horizontal = true
+					    line2:SetVisible(true)
+				    end
+			    end
 			--horizontal
-			if( y1 + DDP.selected[1]:GetTall() == y2 + b:GetTall() and b != DDP.selected[1] ) then 
-				hit4 = hit4 + 1
-				if( x1 > x2 ) then
-					line4:SetPos(x2,y2+b:GetTall()) 
-					line4:SetSize(x1-x2+DDP.selected[1]:GetWide(),2)
+			    if( y1 + DDP.selected[1]:GetTall() == y2 + b:GetTall() and b != DDP.selected[1] ) then 
+			    	hit4 = hit4 + 1
+				    if( x1 > x2 ) then
+				    	line4:SetPos(x2,y2+b:GetTall()) 
+					    line4:SetSize(x1-x2+DDP.selected[1]:GetWide(),2)
 			--		DDP.selected[1]:SetHorizontalTolerance(true)
-					DDP.selected[1].vertical = true
-					line4:SetVisible(true)
-				else
-					line4:SetPos(x1,y2+b:GetTall()) 
-					line4:SetSize(x2-x1+b:GetWide(),2)
-					DDP.selected[1].vertical = true
+					    DDP.selected[1].vertical = true
+					    line4:SetVisible(true)
+				    else
+					    line4:SetPos(x1,y2+b:GetTall()) 
+					    line4:SetSize(x2-x1+b:GetWide(),2)
+					    DDP.selected[1].vertical = true
 			--		DDP.selected[1]:SetHorizontalTolerance(true)
 
-					line4:SetVisible(true)
-				end
-			end
-			if( hit == 0 ) then
-				line:SetVisible(false)
-				DDP.selected[1].horizontal = false
+					    line4:SetVisible(true)
+				    end
+			    end
+			    if( hit == 0 ) then
+				    line:SetVisible(false)
+				    DDP.selected[1].horizontal = false
 			--	DDP.selected[1]:SetVerticalTolerance(false)
-			end
-			if( hit2 == 0 ) then
-				line2:SetVisible(false)
-				DDP.selected[1].horizontal = false
+			    end
+			    if( hit2 == 0 ) then
+				    line2:SetVisible(false)
+				    DDP.selected[1].horizontal = false
 			--	DDP.selected[1]:SetVerticalTolerance(false)
-			end
-			if( hit3 == 0  ) then
-				line3:SetVisible(false)
-				DDP.selected[1].vertical = false
+			    end
+			    if( hit3 == 0  ) then
+				    line3:SetVisible(false)
+				    DDP.selected[1].vertical = false
 			--	DDP.selected[1]:SetHorizontalTolerance(false)
-			end
-			if( hit4 == 0 ) then
-				line4:SetVisible(false)
-				DDP.selected[1].vertical = false
+			    end
+			    if( hit4 == 0 ) then
+				    line4:SetVisible(false)
+				    DDP.selected[1].vertical = false
 			--	DDP.selected[1]:SetHorizontalTolerance(false)
-			end
+			    end
+            end
+        end
+
+        
+        --[[---------------------------------------------------------
+				Lines edge
+                --dd_edge_show
+                local x1,y1 = DDP.selected[1]:GetPos()
+		-----------------------------------------------------------]]
+        local var_v =  GetConVar( "dd_edge_show_vertical" )
+        local var_h = GetConVar( "dd_edge_show_horizontally" )
+        local Edge = {}
+        Edge["Top"] = DDP.frame:GetTall() * var_v:GetFloat()
+        Edge["Bottom"] = DDP.frame:GetTall() - DDP.frame:GetTall() * var_v:GetFloat()
+        Edge["Left"] = DDP.frame:GetWide() * var_h:GetFloat() 
+        Edge["Right"] = DDP.frame:GetWide() - DDP.frame:GetWide() * var_h:GetFloat()
+
+        if( x1 <= Edge["Left"] ) then
+            line7:SetPos( 0, y1 + DDP.selected[1]:GetTall() * .5 - 2.5  )
+            line7:SetSize( x1, 5 )
+            line7:SetVisible( true )
+        else
+            line7:SetVisible( false )
+        end
+
+        if( x1 >= Edge["Right"] ) then
+            line8:SetPos( x1 + DDP.selected[1]:GetWide(), y1 + DDP.selected[1]:GetTall() * .5 - 2.5 )
+            line8:SetSize( DDP.frame:GetWide() - ( x1 + DDP.selected[1]:GetWide() ), 5 )
+            line8:SetVisible( true )
+        else
+            line8:SetVisible( false )
+        end
+
+        if( y1 <= Edge["Top"] ) then
+            line5:SetPos( x1 + DDP.selected[1]:GetWide() * .5 - 2.5, 0  )
+            line5:SetSize( 5, y1 )
+            line5:SetVisible( true )
+        else
+            line5:SetVisible( false )
+        end
+      
+        if( y1 >= Edge["Bottom"] ) then
+            line6:SetPos(  x1 + DDP.selected[1]:GetWide() * .5 - 2.5, y1 + DDP.selected[1]:GetTall()    )
+            line6:SetSize( 5, DDP.frame:GetTall() -( y1 + DDP.selected[1]:GetTall()  ) )
+            line6:SetVisible( true )
+        else
+            line6:SetVisible( false )
+        end
+
+
+
 		--[[---------------------------------------------------------
 		Parents		DDP.MousePos[1] = gui.MouseX()
 		DDP.MousePos[2]
@@ -752,33 +863,25 @@ if( DDP.frame == nil) then return end
 			local selected = DDP.selected[1]
 			for a,b in ipairs( DDP.elemente) do
 				if( selected != b ) then 
-					if( selected.x >= b.x and selected.x + selected:GetWide() <= b.x + b:GetWide() and selected.y >= b.y and selected.y + selected:GetTall() <= b.y + b:GetTall() ) then
-					-- is parent allowed
-						if( b.ClassName == "RPanel" ) then
-						--LocalPlayer():ChatPrint("in Panel!")
-						DDP.selected[1].y = DDP.selected[1].y + 0.01
-							selected:SetParent(b)
-							--selected:SetPos(0,0)
+                    if( !b:IsValid()) then
+                    else
+					    if( selected.x >= b.x and selected.x + selected:GetWide() <= b.x + b:GetWide() and selected.y >= b.y and selected.y + selected:GetTall() <= b.y + b:GetTall() ) then
+					    -- is parent allowed
+					    	if( b.ClassName == "RPanel" ) then
+
+						         DDP.selected[1].y = DDP.selected[1].y + 0.01
+							    selected:SetParent(b)
 						-- calc new pos
-							local parentposx, parentposy = b:GetPos()
-							local mx =  (DDP.frame.x  - gui.MouseX()) + selected:GetWide() 
-							local my = (DDP.frame.y  - gui.MouseY()) + selected:GetTall() 
-							Msg( mx .. " " .. my .. "\n")
-							--selected.x = 0  // mx - selected:GetParent().x
-						--	selected.y = 10 // my - selected:GetParent().y
-					--	DDP.selected[1]:SetPos(0,0)
-					--	LocalPlayer():ChatPrint("X: " .. selected.x .. " Y: " ..  selected.y .. "")
-						--	LocalPlayer():ChatPrint("X: " .. mx .. " Y: " .. my .. "")
-						end
-					end
+							    local parentposx, parentposy = b:GetPos()
+							    local mx =  (DDP.frame.x  - gui.MouseX()) + selected:GetWide() 
+							    local my = (DDP.frame.y  - gui.MouseY()) + selected:GetTall() 
+						    end
+					    end
+                    end
 				end
 			end
-		end
-		local selected = DDP.selected[1]
-		local elemente = DDP.elemente
-		for k,v in ipairs( GetRange( selected, elemente, 15 ) ) do
-	--		LocalPlayer():ChatPrint( v.panel:GetText() .. " ist " .. v.posi .. "")
-		end
+		
+
 		if(input.IsMouseDown(MOUSE_RIGHT)) then	OpenMenu() end
 		if( input.IsMouseDown( MOUSE_LEFT ) and !_b ) then 
 			_b = true
@@ -788,8 +891,6 @@ if( DDP.frame == nil) then return end
 			_b = false
 		end
 	end
-
-
 
 end
 	
@@ -803,6 +904,7 @@ function DebugHud()
 if( DDP.frame == nil ) then return end
 
 if( DDP.selected[1] == nil ) then return end
+if( !DDP.selected[1]:IsValid() ) then return end 
 local x1,y1 = DDP.selected[1]:GetPos()
 draw.SimpleText( "Selected: " , "DermaDefault", 50, 25, Color(255,0,0,255), 1, 1 )
 draw.SimpleText( "X: " .. x1 .. " Y: " .. y1 .. " Z: " .. DDP.selected[1]:GetZPos() .. "" , "DermaDefault", 50, 50, Color(255,0,0,255), 1, 1 )
@@ -810,9 +912,12 @@ draw.SimpleText( "X: " .. x1 .. " Y: " .. y1 .. " Z: " .. DDP.selected[1]:GetZPo
 for k,v in ipairs( DDP.elemente ) do
 
 	if(v != DDP.selected[1] ) then
+     if( !v:IsValid() ) then
+     else
 	local fx,fy = DDP.frame:LocalCursorPos()
 	local x,y = v:GetPos()
 	draw.SimpleText( "X: " .. x .. " Y: " .. y .. " Z: " .. v:GetZPos() .. " Mousepos: " .. fy .. " " .. DDP.MousePressed[2] .. "" , "DermaDefault", 50, 50+k*25, Color(255,0,0,255), 1, 1 )
+    end
 	end
 	end
 end
@@ -831,12 +936,13 @@ local function CursorDisplay()
 	if( timer.Exists( "ddp_place" ) ) then
 		local x,y = input.GetCursorPos()
 
-
 		surface.SetDrawColor( 255, 255, 255, 255 )
-		surface.SetMaterial( Material("DD/icons/" .. DDP.icon .. ".png") ) -- If you use Material, cache it!
+		surface.SetMaterial( Material("DD/icons/" .. DDP.icon .. ".png") ) 
 		surface.DrawTexturedRect( x+10,y+20,15,15 )
 	end
 	
 	--DDP.icon
 end
 hook.Add("DrawOverlay","DDP_Cursor", CursorDisplay )
+
+

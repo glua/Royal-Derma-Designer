@@ -19,10 +19,10 @@ end
 function SaveTheFile()
 if( saveframe != nil ) then saveframe:Remove() saveframe = nil end
 		saveframe = vgui.Create("GMenu")
-	     saveframe:SetPos(368,316)
-		 saveframe:SetSize(435,341) 
+	     saveframe:SetPos( ScrW() * .5 -  ScrW() * .2265  * .5, ScrH() * .5 - ScrH() * .2841 * .5 )
+		 saveframe:SetSize(ScrW() * .2265 ,ScrH() * .2841 ) 
 		 saveframe:SetTitle("Save projectfile")
-		 saveframe:SetDragable( false )
+		 saveframe:SetDraggable( false )
 		 saveframe:MakePopup()
 
 
@@ -53,19 +53,19 @@ local e = vgui.Create("DListView",saveframe)
 	 	 e:AddColumn( "Author" )
 		 e:AddColumn( "VGUI" )
 
-	 	local files, dir = file.Find( "ride/projects/*.txt", "DATA", "nameasc" )
+	 	local files, dir = file.Find( "db/projects/*.txt", "DATA", "nameasc" )
 
 		for k,v in ipairs( files ) do
 		local f = string.Explode("_",v)
 			if(#f > 1 ) then
 			else
-				local tab = util.JSONToTable( file.Read("ride/projects/" .. v .. "", "DATA") )
+				local tab = util.JSONToTable( file.Read("db/projects/" .. v .. "", "DATA") )
 				e:AddLine( tab.name, tab.author, #tab.elemente )
 			end
 
 		end
  end
-
+ --1920 * 1200
  --[[---------------------------------------------------------
    Name: LoadTheFile
 -----------------------------------------------------------]]
@@ -73,10 +73,10 @@ local e = vgui.Create("DListView",saveframe)
 
  if( loadframe != nil ) then loadframe:Remove() loadframe = nil end
          loadframe = vgui.Create("GMenu")
-	     loadframe:SetPos(368,316)
-		 loadframe:SetSize(435,341) 
+	     loadframe:SetPos( ScrW() * .1916, ScrH() * .2633)
+		 loadframe:SetSize(ScrW() * .2265,ScrH() * .2841) 
 		 loadframe:SetTitle("Load projectfile")
-		 loadframe:SetDragable( false )
+		 loadframe:SetDraggable( false )
 		 loadframe:MakePopup()
 
 		 
@@ -97,7 +97,7 @@ local listview = vgui.Create("DListView",loadframe)
 		filename:SetText( Line:GetColumnText( 1 ) )
 		 end
 
-	 	local files, dir = file.Find( "ride/projects/*.txt", "DATA", "nameasc" )
+	 	local files, dir = file.Find( "db/projects/*.txt", "DATA", "nameasc" )
 
 		for k,v in ipairs( files ) do
 
@@ -105,7 +105,7 @@ local listview = vgui.Create("DListView",loadframe)
 		if( string.find(string.lower(v), "lua", 0 ) ) then
 
 		else
-				local tab = util.JSONToTable( file.Read("ride/projects/" .. v .. "", "DATA") )
+				local tab = util.JSONToTable( file.Read("db/projects/" .. v .. "", "DATA") )
 				listview:AddLine( tab.name, tab.author, #tab.elemente )
 		end
 

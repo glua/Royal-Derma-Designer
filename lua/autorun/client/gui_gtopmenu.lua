@@ -14,7 +14,7 @@ function PANEL:Init()
 	self.tabs = {}
 	self.panel = {}
 
-	self.count = 1
+	self.count = 0
 	self.selectede = {}
 	self.parent = nil
 	self.color = Color(29,29,29,255)
@@ -45,10 +45,9 @@ end
 
 function PANEL:AddTab( name ) 
 
-	
+		self.count = self.count + 1
 	self.tabs[self.count] = vgui.Create("GButton", self )
-	self.tabs[self.count]:SetPos( 20+(140*(self.count-1)), 0)
-	self.tabs[self.count]:SetSize(120,self:GetTall())
+
 	self.tabs[self.count]:SetText( name )
 	self.tabs[self.count]:SetColor( self.color )
 
@@ -57,7 +56,7 @@ function PANEL:AddTab( name )
 	self.panel[self.count]:SetSize(self:GetWide()-1,self.parent:GetTall()-(self.y+self:GetTall()+5))
 	self.panel[self.count]:SetBackgroundColor( Color(255,255,255,255) )
 
-	self.count = self.count + 1
+
 end
 
 --[[---------------------------------------------------------
@@ -122,8 +121,18 @@ function PANEL:PerformLayout( w, h )
 	if( #self.tabs > 0 ) then
 		self.tabs[1]:SetSelected( true )
 	end
+    for i = 1, self.count do
+        if( self.tabs[i] != nil ) then
+            if( i > 1 ) then
+                local x,y = self.tabs[i-1]:GetPos()
+                self.tabs[i]:SetPos( x + self.tabs[i-1]:GetWide() + w * .015 , 0)
+            else
+                self.tabs[i]:SetPos( 0, 0)                      
+            end
 
-
+	        self.tabs[i]:SetSize( w / self.count - w * .015, h)
+        end
+    end
 
 
 end

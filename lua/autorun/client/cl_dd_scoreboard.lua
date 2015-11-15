@@ -2,7 +2,7 @@
  local frame = vgui.Create("GMenu")
 frame:SetPos(ScrW()*.125,ScrH()*.125)
 frame:SetSize(ScrW() * .5,ScrH() * .5) 
-frame:SetDragable( false )
+frame:SetDraggable( false )
  frame:MakePopup()
 
  local selectedm = ""
@@ -110,7 +110,7 @@ frame:SetDragable( false )
 /*
 function scoreboard_menu()
 local frame = vgui.Create("GMenu")
-frame:SetDragable( false )
+frame:SetDraggable( false )
 frame:SetTitle( "[Scoreboard Creator] 0.0.1")
 frame:SetPos(637,329)
 frame:SetSize(526,544) 
@@ -182,3 +182,4 @@ frame:SetSize(526,544)
  end
 
  */
+ 

@@ -9,17 +9,64 @@ DDP_Designer = {  Projects = {}  }
  --[[---------------------------------------------------------
 Name: AddDesigner( string, panel )
 -----------------------------------------------------------]]
-local function AddDesigner( name, sheet )
+local function AddDesigner( name, sheet, w, h )
  
+ if( w > sheet:GetWide() - sheet:GetPadding() * 2 ) then w = sheet:GetWide() - sheet:GetPadding() * 2 end
+ if( h > ( sheet:GetTall() - 28 ) - sheet:GetPadding() ) then h = ( sheet:GetTall() - 28 ) - sheet:GetPadding()  end
+ if( w <= 0 ) then w = 10 end
+ if( h <= 0 ) then h = 10 end
+
 	local she = vgui.Create("DDDesigner")
-	she:SetSize( 10,10 )
+	she:SetSize( w,h )
 
 	table.insert( DDP_Designer.Projects, { panel = she, id = #DDP_Designer.Projects + 1, layer = {}, name = name } )
 
-	sheet:AddSheet( name, DDP_Designer.Projects[ #DDP_Designer.Projects ].panel , "icon16/cross.png", false, false, "" )
+	sheet:AddSheet( name, DDP_Designer.Projects[ #DDP_Designer.Projects ].panel , "icon16/cross.png", true, true, "" )
 
 
 
+end
+
+function MessageBoxDesigner()
+
+local frame = vgui.Create("DFrame")
+frame:SetPos( 0.30677083333333 * ScrW(), 0.13166666666667 * ScrH() )
+frame:SetSize( 0.30364583333333 * ScrW(), 0.083333333333333 * ScrH() )
+frame:MakePopup() 
+
+ local e = vgui.Create( "DButton", frame )
+						 e:SetPos( 0.018867924528302 * frame:GetWide(), 0.68 * frame:GetTall() )
+						 e:SetSize( 0.30531732418525 * frame:GetWide(), 0.22 * frame:GetTall() )
+						 e:SetDrawBackground( true )
+						 e:SetText( "Anwenden" )
+						 e:SetFont( "DermaDefault" )
+						 e:SetDisabled( false )
+						
+ local e = vgui.Create( "DButton", frame )
+						 e:SetPos( 0.67581475128645 * frame:GetWide(), 0.68 * frame:GetTall() )
+						 e:SetSize( 0.30531732418525 * frame:GetWide(), 0.22 * frame:GetTall() )
+						 e:SetDrawBackground( true )
+						 e:SetText( "Nicht anwenden" )
+						 e:SetFont( "DermaDefault" )
+						 e:SetDisabled( false )
+						
+ local e = vgui.Create( "DButton", frame )
+						 e:SetPos( 0.34819897084048 * frame:GetWide(), 0.68 * frame:GetTall() )
+						 e:SetSize( 0.30531732418525 * frame:GetWide(), 0.22 * frame:GetTall() )
+						 e:SetDrawBackground( true )
+						 e:SetText( "Abbrechen" )
+						 e:SetFont( "DermaDefault" )
+						 e:SetDisabled( false )
+						
+ local e = vgui.Create( "DLabel", frame )
+						 e:SetPos( 0.10806174957118 * frame:GetWide(), 0.32 * frame:GetTall() )
+						 e:SetSize( 0.39108061749571 * frame:GetWide(), 0.2 * frame:GetTall() )
+						 e:SetDisabled( false )
+						 e:SetText( "Möchten Sie die Transformation anwenden ?" )
+						
+ local e = vgui.Create( "DImage", frame )
+						 e:SetPos( 0.0085763293310463 * frame:GetWide(), 0.32 * frame:GetTall() )					
+						 e:SetSize( 0.075471698113208 * frame:GetWide(), 0.28 * frame:GetTall() )
 end
 
  --[[---------------------------------------------------------
@@ -32,9 +79,9 @@ local test = {}
 test["basic"] = { w = 750, h = 500, backg = Color( 255, 255, 255, 0) }
 
 local frame = vgui.Create("GMenu")
-frame:SetPos(542,442)
-frame:SetSize(300,177) 
-frame:SetDragable( false )
+frame:SetPos(ScrW() * .2822,ScrH() *.3683)
+frame:SetSize(ScrW() * .1562,ScrH()*.1475) 
+frame:SetDraggable( false )
 frame:MakePopup()
 
  local width = vgui.Create("DTextEntry",frame)
@@ -50,7 +97,7 @@ frame:MakePopup()
  local e = vgui.Create("DComboBox",frame)
 						 e:SetPos(0.19*frame:GetWide() ,0.33898305084746*frame:GetTall())
 						 e:SetSize(0.76333333333333*frame:GetWide(),0.14124293785311*frame:GetTall())
-						 local settings = string.Explode( "\n", file.Read("ride/newmenu_settings.txt", "DATA") )
+						 /*local settings = string.Explode( "\n", file.Read("ride/newmenu_settings.txt", "DATA") )
 							for k,v in ipairs( settings ) do
 								if( v == "" ) then
 
@@ -60,7 +107,7 @@ frame:MakePopup()
 								test[t.name] = { w = t.w, h = t.h, backg = t.backg }
 								e:AddChoice( t.name )
 								end
-							end 
+							end */
 							e.OnSelect = function( panel, index, value )
 							select = value
 							 height:SetText( test[select].h )
@@ -123,10 +170,10 @@ frame:MakePopup()
 						 e.DoClick = function()
 
 						 local save = vgui.Create("GMenu")
-						 save:SetPos(542,442)
-						 save:SetSize(400,60) 
+						 save:SetPos(ScrW() * .2822,ScrH() * .3683)
+						 save:SetSize(ScrW() * .2083,ScrH() * .05 ) 
 						 save:SetTitle( "Save settings")
-						 save:SetDragable( false )
+						 save:SetDraggable( false )
 					   	 save:MakePopup()
 
 						 local files = vgui.Create("DTextEntry",save)
@@ -151,22 +198,89 @@ frame:MakePopup()
 	   e:SetText("create")
        e.DoClick = function( self )
 
-	   AddDesigner( Name:GetText(), s )
+	   AddDesigner( Name:GetText(), s, tonumber( width:GetText() ), tonumber( height:GetText() ) )
 	   frame:Remove()
 
 	 end
  end
 
+--[[---------------------------------------------------------
+Name: CreateTransform( string, number, number, number, number, panel, table )
+-----------------------------------------------------------]]
+local function CreateTransform( typ, x, y, w, h, parent, data, poly )
+
+	--if( typ == nil or x == nil or y == nil or w == nil or h == nil or parent == nil or data == nil ) then print( "[DermaDesigner]: nil value in CreateTranform()") return end
+	parent:SetModus( "none" )
+	if( typ == "circle" ) then 
+	h = w
+	local t = vgui.Create( "DDTransform", parent )
+	t:SetPos( w, y  )
+	t:SetSize( w * 2, h * 2 )
+	t:SetDraw( true )
+	t:SetDrawTable( data )
+	t:SetTyp( typ )
+	elseif( typ == "4poly" or typ == "poly" ) then
+
+		local tx = {}
+		local ty = {}
+		for k,v in ipairs( poly ) do
+
+			table.insert( tx, v.x )
+			table.insert( ty, v.y )
+
+		end
+		table.sort( tx, function( a, b ) return a > b end )
+		table.sort( ty, function( a, b ) return a > b end )
+
+		local t = vgui.Create( "DDTransform", parent )
+		t:SetPos( tx[#tx],ty[#ty] )
+		t:SetSize( tx[1] - tx[#tx], ty[1] - ty[#ty] )
+		t:SetDraw( true )
+		t:SetDrawTable( data )
+		t:SetTyp( typ )
+		t:SetInit( { tx[#tx],ty[#ty], tx[1] - tx[#tx], ty[1] - ty[#ty], poly } )
+
+	elseif( typ == "rect" or typ == "orect" ) then
+
+	local t = vgui.Create( "DDTransform", parent )
+	t:SetPos( x, y )
+	t:SetSize( w, h )
+	t:SetDraw( true )
+	t:SetDrawTable( data )
+	t:SetTyp( typ )
+	end
+
+
+
+
+end
 
 --[[---------------------------------------------------------
 Name: PaintFrame( string )
 -----------------------------------------------------------]]
 function PaintFrame( n )
 
+	local function GetDDesigner( )
+
+	local panel = nil
+
+	    if(  #DDP_Designer.Projects > 0 ) then
+
+		    for k,v in ipairs( DDP_Designer.Projects ) do
+
+		    	if( v.panel:IsVisible() ) then
+
+			    	panel = v.panel
+		    	end
+		    end
+	    end
+		return panel
+	end
+
 	local frame = vgui.Create("GMenu")
 	frame:SetTitle( "designer" )
 	frame:SetPos(ScrW() * 0.11315789473684210526315789473684,ScrH() * 0.24)
-	frame:SetDragable( false )
+	frame:SetDraggable( false )
 	frame:SetSize(ScrW() * 0.50526315789473684210526315789474,ScrH() * 0.5) 
 	frame:MakePopup()
 
@@ -216,23 +330,29 @@ function PaintFrame( n )
 	bearbeiten:SetPos( frame:GetWide() * .06 + 2, 2 )
 	bearbeiten:SetSize( frame:GetWide() * .06, 26 )
 	bearbeiten:SetText( "EDIT" )
+	bearbeiten.Clicked = function()
 
-	local function GetDDesigner( )
+	local datei_menu = DermaMenu()
 
-	local panel = nil
+		datei_menu:AddOption( "transform", function() 
+			if( #EPanel.selected > 0 ) then 
+				if( designer.layer[EPanel.selected[1]:GetID()].typ == "rect" or designer.layer[EPanel.selected[1]:GetID()].typ == "orect" ) then
+					CreateTransform( designer.layer[EPanel.selected[1]:GetID()].typ, designer.layer[EPanel.selected[1]:GetID()].x, designer.layer[EPanel.selected[1]:GetID()].y, designer.layer[EPanel.selected[1]:GetID()].w, designer.layer[EPanel.selected[1]:GetID()].h, GetDDesigner(), { DDP_Designer.Projects, EPanel.current, EPanel.selected[1].form }  )
+				elseif(  designer.layer[EPanel.selected[1]:GetID()].typ == "poly" or designer.layer[EPanel.selected[1]:GetID()].typ == "4poly" ) then
+					CreateTransform( designer.layer[EPanel.selected[1]:GetID()].typ, nil, nil, nil, nil,  GetDDesigner(),{ DDP_Designer.Projects, EPanel.current, EPanel.selected[1].form }, designer.layer[EPanel.selected[1]:GetID()].poly  )
+				elseif( designer.layer[EPanel.selected[1]:GetID()].typ == "circle" ) then
+					CreateTransform( designer.layer[EPanel.selected[1]:GetID()].typ, designer.layer[EPanel.selected[1]:GetID()].x, designer.layer[EPanel.selected[1]:GetID()].y, designer.layer[EPanel.selected[1]:GetID()].w, designer.layer[EPanel.selected[1]:GetID()].h, GetDDesigner(), { DDP_Designer.Projects, EPanel.current, EPanel.selected[1].form }  )
+				end 
+			end
+		end )
 
-	    if(  #DDP_Designer.Projects > 0 ) then
+	local x,y = frame:LocalToScreen( datei.x, datei.y + datei:GetTall( ) )
+	datei_menu:Open( x, y )
+	
 
-		    for k,v in ipairs( DDP_Designer.Projects ) do
-
-		    	if( v.panel:IsVisible() ) then
-
-			    	panel = v.panel
-		    	end
-		    end
-	    end
-		return panel
 	end
+
+
 
 	local e = vgui.Create("DDSideBoard",frame)
 	e:SetPos(0 ,30)
@@ -246,7 +366,7 @@ function PaintFrame( n )
 
 	local Eframe = vgui.Create("GMenu",frame)
 	Eframe:SetTitle( "Editor")
-	Eframe:SetDragable( false )
+	Eframe:SetDraggable( false )
 	Eframe:SetPos(frame:GetWide() + frame.x + 10 ,ScrH() * 0.24)
 	Eframe:SetSize(ScrW()*0.10526315789473684210526315789474,ScrH() * 0.5) 
 	
@@ -283,6 +403,7 @@ function PaintFrame( n )
 	EPanel:MakeDroppable( "layer", false )
 	EPanel:SetSelectionCanvas( true )
 	EPanel:SetUseLiveDrag( true )
+	EPanel.selected = {}
     EPanel.Tabs = {}
     EPanel.current = nil
     EPanel.Clear = function( self ) 
@@ -293,7 +414,7 @@ function PaintFrame( n )
         end 
     end
 	
-	local selected = { }
+--	local selected = { }
 	local Button_Layer = { }
 	local sheet_active = nil
 
@@ -337,12 +458,15 @@ function EPanel:Think( )
 			if( designer.layer[#designer.layer].typ == "4poly" or designer.layer[#designer.layer].typ == "poly" ) then
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = designer.layer[#designer.layer].poly, col = designer.layer[#designer.layer].col  } )
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetID( #designer.layer )
+				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ].form = designer.layer[#designer.layer].name
 			elseif( designer.layer[#designer.layer].typ == "rect" or designer.layer[#designer.layer].typ == "orect"  ) then
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, h = designer.layer[#designer.layer].h, col = designer.layer[#designer.layer].col } } )
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetID( #designer.layer )
+				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ].form = designer.layer[#designer.layer].name
 			elseif( designer.layer[#designer.layer].typ == "circle" ) then
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetPreView( { typ = designer.layer[#designer.layer].typ , parent = designer, data = { x = designer.layer[#designer.layer].x, y = designer.layer[#designer.layer].y, w = designer.layer[#designer.layer].w, col = designer.layer[#designer.layer].col} } )
 				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ]:SetID( #designer.layer )
+				Button_Layer[ designer:GetLayer()[ #designer.layer ].id ].form = designer.layer[#designer.layer].name
 			end
 		end 
 
@@ -395,17 +519,17 @@ function EPanel:Think( )
 		for k,v in ipairs( self:GetChildren()  ) do
 	
 			if( v:GetSelect() ) then
-				if( table.HasValue( selected, v ) ) then
+				if( table.HasValue( self.selected, v ) ) then
 				else
-					if( #selected > 0 ) then
-						if( selected[1]:IsValid() ) then
-							selected[1]:SetSelect( false )
+					if( #self.selected > 0 ) then
+						if( self.selected[1]:IsValid() ) then
+							self.selected[1]:SetSelect( false )
 						else
 
 						end
-						table.Empty( selected )
+						table.Empty( self.selected )
 					end 
-					table.insert( selected, v )
+					table.insert( self.selected, v )
 					designer:SetSelect( v:GetID() )
 				end
 			end

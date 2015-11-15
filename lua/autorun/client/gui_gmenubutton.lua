@@ -137,12 +137,15 @@ PANEL.SetIcon = PANEL.SetImage
 
 -----------------------------------------------------------]]
 function PANEL:Paint( w, h )
-
-if( self:IsHovered() ) then
-	draw.SimpleText( self.text , "Button", 15, h/2, Color(85,170,255,255), 0, 1 )
-else
-	draw.SimpleText( self.text , "Button", 15, h/2, Color(0,122,204,255), 0, 1 )
-	end
+    if( self.m_bDisabled ) then
+        draw.SimpleText( self.text , "Button", 15, h/2, Color(60,60,60,255), 0, 1 )
+    else
+       if( self:IsHovered() ) then
+        	draw.SimpleText( self.text , "Button", 15, h/2, Color(85,170,255,255), 0, 1 )
+        else
+    	    draw.SimpleText( self.text , "Button", 15, h/2, Color(0,122,204,255), 0, 1 )
+	    end
+    end
 end
 
 
@@ -204,9 +207,9 @@ end
 function PANEL:OnMouseReleased( mousecode )
 
 if( mousecode != MOUSE_LEFT ) then return end
-
+if( self.m_bDisabled ) then return end
 		self.selected = true
-	
+
 	self:Clicked()
 end
 
