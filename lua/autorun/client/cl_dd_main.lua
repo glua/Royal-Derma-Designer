@@ -8,9 +8,6 @@
 --LocalPlayer():ChatPrint
 
 CreateClientConVar("dd_gap",15,false,false)
-CreateClientConVar("dd_edge_show_vertical",0.3,false,false)
-CreateClientConVar("dd_edge_show_horizontally",0.3,false,false)
-
 
 surface.CreateFont( "Test_font", {
 	font = "DermaDefault",
@@ -132,7 +129,7 @@ Mainf:MakePopup()
 		  end
 		   local Skincreator = vgui.Create("GMenuButton",starten)
 		  Skincreator:SetText("skin creator")
-          Skincreator:SetDisabled( true )
+          Skincreator:SetDisabled( false )
 		  Skincreator:SetPos( starten:GetWide() * 0.1, starten:GetTall() * 0.31)
 		  Skincreator:SetSize(Mainf:GetWide(), Mainf:GetTall()* .0208)
 			  function Skincreator:Clicked()
@@ -203,30 +200,28 @@ Mainf:MakePopup()
 			 test:SetPos( zuletzt:GetWide() * 0.1, zuletzt:GetTall() * (0.03 + (0.035*k)) )
 			 test:SetSize(200,25)
 			end
-		end
+		end 
 
 		--  print( os.date( "%d.%m.%Y", file.Time( "ride\projects\*.txt", "DATA" ) ) )
 		--]]
 
-		  panel = vgui.Create( "DPanelList")
-		  panel:SetSize(  Mainf:GetWide()+11, Mainf:GetTall()-Mainf:GetTall()*0.5)
-		  panel:SetPos( 0, 0 )
-		  panel:EnableVerticalScrollbar()
 
-		  panel.VBar.btnUp:SetVisible(false)
-		  panel.VBar.btnDown:SetVisible(false)
-		  panel.VBar.btnGrip:SetVisible(false)
-		  function panel.VBar:Paint(w,h)
-	 	  surface.SetDrawColor(0,0,0,0)
-	 	  surface.DrawRect(0,0,w,h)
-		  return true
-		  end
-		 
+
+
+		  panel = vgui.Create( "DScrollPanel") -- DPanelList
+		  panel:SetSize(  Mainf:GetWide()+11, Mainf:GetTall()*0.2 - (math.abs(Mainf:GetTall()*0.2 - 250) ))
+		  panel:SetPos( 0, 25 )
+		  panel:GetVBar():SetSize(0,0)
+
+
+
 		  t:AddItem(panel,1)
 		  table.SortByMember( DDP.toolbox, "count" )
 		  for k,v in ipairs( DDP.toolbox ) do
-			DDListButtom = vgui.Create( "DDListButtom" )
-			DDListButtom:SetPos( 25, 50 ) 
+			DDListButtom = panel:Add( "DDListButtom" )
+			DDListButtom:Dock(TOP)
+			DDListButtom:DockMargin(0,0,0,0)
+			//DDListButtom:SetPos( 25, 50 ) 
 			DDListButtom:SetImage("DD/icons/" .. v.classname .. ".png" )  --Game freeze huge fps drop!
 
 			--"DD/icons/default.png"
@@ -268,8 +263,22 @@ Mainf:MakePopup()
 				--DDP.elemente[val]:Buildmode(true)
 			 end 
 			DDListButtom:SizeToContents()                  
-			panel:AddItem( DDListButtom) 
 		  end
+
+		  local searchBar = vgui.Create( "DTextEntry" ) -- create the form as a child of frame
+		  searchBar:SetPos( 0, 0 )
+		  searchBar:SetSize(  Mainf:GetWide()+11, 25)
+	  
+		  function searchBar:OnChange( )
+			  for k,v in ipairs( DDP.toolbox ) do
+				  if( string.match( string.lower(v.classname), string.lower(self:GetText()))) then
+					panel:ScrollToChild(panel:GetCanvas():GetChildren()[k])
+				  end
+				end
+		  end
+		  t:AddItem(searchBar,1)
+
+		
 	local old =	DDP.selected[1]		  
 	function Mainf:OverWrite()
 	if( DDP.frame == nil ) then Mainf:Remove() return end
@@ -280,10 +289,11 @@ Mainf:MakePopup()
 				DProperties:Remove()
 				DProperties = vgui.Create( "DProperties" )
 
-				Row2 = DProperties:CreateRow( "Properties", "IsVisible" )
-				Row2:Setup( "Boolean" )
-				Row2:SetValue( DDP.selected[1]:IsVisible() )
-				Row2.DataChanged = function( _, val ) DDP.selected[1]:SetVisible(tobool(val)) print(val)end
+				visible = DProperties:CreateRow( "Properties", "IsVisible" )
+				visible:Setup( "Boolean" )
+				visible:SetValue( DDP.selected[1]:IsVisible() )
+				visible.DataChanged = function( _, val ) DDP.selected[1]:SetVisible(tobool(val)) print(val)end
+
 
 				if( DDP.vgui[DDP.selected[1].ClassName] ) then
 					
@@ -413,10 +423,10 @@ line:SetPos(0,0)
 line:SetSize(5,0)
 line:SetZPos(32766)
 line:SetVisible(true)
-function line:Paint( w, h )
+function line:Paint()
 
 surface.SetDrawColor(255,0,0,255)
-surface.DrawRect(0,0,w,h)
+surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 
 
@@ -426,10 +436,10 @@ line2:SetPos(0,0)
 line2:SetSize(5,0)
 line2:SetZPos(32766)
 line2:SetVisible(true)
-function line2:Paint( w, h )
+function line2:Paint()
 
 surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
+surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
 
 --[[---------------------------------------------------------
@@ -455,68 +465,10 @@ line4:SetPos(0,0)
 line4:SetSize(5,0)
 line4:SetZPos(32766)
 line4:SetVisible(true)
-function line4:Paint( w, h )
+function line4:Paint()
 surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
+surface.DrawRect(0,0,self:GetWide(),self:GetTall())
 end
-
-
---[[---------------------------------------------------------
-GAP`s
-Vertical: 
------------------------------------------------------------]]
-
-line5 = vgui.Create("DButton",DDP.frame)
-line5:SetText("")
-line5:SetPos(0,0)
-line5:SetSize(5,0)
-line5:SetZPos(32766)
-line5:SetVisible(true)
-function line5:Paint( w, h )
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
-end
-
-line6 = vgui.Create("DButton",DDP.frame)
-line6:SetText("")
-line6:SetPos(0,0)
-line6:SetSize(5,0)
-line6:SetZPos(32766)
-line6:SetVisible(true)
-function line6:Paint( w, h )
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
-end
-
-
---[[---------------------------------------------------------
-GAP`s
- Horizontal: 
------------------------------------------------------------]]
-
-line7 = vgui.Create("DButton",DDP.frame)
-line7:SetText("")
-line7:SetPos(0,0)
-line7:SetSize(5,0)
-line7:SetZPos(32766)
-line7:SetVisible(true)
-function line7:Paint( w, h )
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
-end
-
-line8 = vgui.Create("DButton",DDP.frame)
-line8:SetText("")
-line8:SetPos(0,0)
-line8:SetSize(5,0)
-line8:SetZPos(32766)
-line8:SetVisible(true)
-function line8:Paint( w, h )
-surface.SetDrawColor(0,0,255,255)
-surface.DrawRect(0,0,w,h)
-end
-
-
 
 Main()
 
@@ -583,6 +535,7 @@ menu_pressed:AddOption( "paste", function()
 menu_pressed = nil  end ) 
 end
 menu_pressed:AddOption( "cut", function() if( #DDP.copied > 0 ) then table.Empty(DDP.copied) end for k,v in ipairs( table.GetKeys( DProperties.Categories ) ) do DProperties.Categories[v]:Clear() end table.insert( DDP.copied, { classname =  DDP.selected[1].ClassName, text = DDP.selected[1]:GetText(), w = DDP.selected[1]:GetWide(), h = DDP.selected[1]:GetTall() } ) DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
+//[ERROR] lua/vgui/dproperties.lua:125: Tried to use invalid object (type Panel) (Object was NULL or not of the right type)
 menu_pressed:AddOption( "delete", function() for k,v in ipairs( table.GetKeys( DProperties.Categories ) ) do DProperties.Categories[v]:Clear() end DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
 menu_pressed:AddOption( "Code display", function() CodeView(  GetCurrentCode( ), DDP.Name ) menu_pressed = nil  end ) 
 menu_pressed:Open()
@@ -703,6 +656,7 @@ if( DDP.frame == nil) then return end
 		-----------------------------------------------------------]]
 		local x1,y1 = DDP.selected[1]:GetPos()
 		-- change names of local values bad :(
+		local cx,cy = DDP.frame:LocalCursorPos()
 		local hit = 0
 		local hit2 = 0
 		local hit3 = 0
@@ -806,55 +760,6 @@ if( DDP.frame == nil) then return end
 			    end
             end
         end
-
-        
-        --[[---------------------------------------------------------
-				Lines edge
-                --dd_edge_show
-                local x1,y1 = DDP.selected[1]:GetPos()
-		-----------------------------------------------------------]]
-        local var_v =  GetConVar( "dd_edge_show_vertical" )
-        local var_h = GetConVar( "dd_edge_show_horizontally" )
-        local Edge = {}
-        Edge["Top"] = DDP.frame:GetTall() * var_v:GetFloat()
-        Edge["Bottom"] = DDP.frame:GetTall() - DDP.frame:GetTall() * var_v:GetFloat()
-        Edge["Left"] = DDP.frame:GetWide() * var_h:GetFloat() 
-        Edge["Right"] = DDP.frame:GetWide() - DDP.frame:GetWide() * var_h:GetFloat()
-
-        if( x1 <= Edge["Left"] ) then
-            line7:SetPos( 0, y1 + DDP.selected[1]:GetTall() * .5 - 2.5  )
-            line7:SetSize( x1, 5 )
-            line7:SetVisible( true )
-        else
-            line7:SetVisible( false )
-        end
-
-        if( x1 >= Edge["Right"] ) then
-            line8:SetPos( x1 + DDP.selected[1]:GetWide(), y1 + DDP.selected[1]:GetTall() * .5 - 2.5 )
-            line8:SetSize( DDP.frame:GetWide() - ( x1 + DDP.selected[1]:GetWide() ), 5 )
-            line8:SetVisible( true )
-        else
-            line8:SetVisible( false )
-        end
-
-        if( y1 <= Edge["Top"] ) then
-            line5:SetPos( x1 + DDP.selected[1]:GetWide() * .5 - 2.5, 0  )
-            line5:SetSize( 5, y1 )
-            line5:SetVisible( true )
-        else
-            line5:SetVisible( false )
-        end
-      
-        if( y1 >= Edge["Bottom"] ) then
-            line6:SetPos(  x1 + DDP.selected[1]:GetWide() * .5 - 2.5, y1 + DDP.selected[1]:GetTall()    )
-            line6:SetSize( 5, DDP.frame:GetTall() -( y1 + DDP.selected[1]:GetTall()  ) )
-            line6:SetVisible( true )
-        else
-            line6:SetVisible( false )
-        end
-
-
-
 		--[[---------------------------------------------------------
 		Parents		DDP.MousePos[1] = gui.MouseX()
 		DDP.MousePos[2]
@@ -944,5 +849,48 @@ local function CursorDisplay()
 	--DDP.icon
 end
 hook.Add("DrawOverlay","DDP_Cursor", CursorDisplay )
+
+
+
+--[[---------------------------------------------------------
+   Name: Test
+-----------------------------------------------------------]]
+
+function CreateTestSwitcher()
+
+	
+local frame = vgui.Create("DFrame")
+frame:SetPos( 0.052083333333333 * ScrW(), 0.083333333333333 * ScrH() )
+frame:SetSize( 0.5 * ScrW(), 0.5 * ScrH() )
+frame:MakePopup()
+
+local testswitcher = vgui.Create("DDPageSwitch", frame)
+	  testswitcher:SetPos( 25,25)
+	  testswitcher:SetSize( 0.5 * ScrW() - 50, 0.5 * ScrH() - 50 )
+
+local panel1 = vgui.Create("DPanel")
+
+local button1 = vgui.Create("DButton",panel1)
+button1:SetPos(50,50)
+button1:SetSize(150,20)
+
+local panel2 = vgui.Create("DPanel")
+
+local button2 = vgui.Create("DButton",panel2)
+button2:SetPos(50,100)
+button2:SetSize(150,20)
+local panel3 = vgui.Create("DPanel")
+
+local button3 = vgui.Create("DButton",panel3)
+button3:SetPos(50,150)
+button3:SetSize(150,20)
+
+
+testswitcher:AddPage(panel1)
+testswitcher:AddPage(panel2)
+testswitcher:AddPage(panel3)
+end
+
+
 
 

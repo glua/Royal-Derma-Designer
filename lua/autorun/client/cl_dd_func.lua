@@ -1,4 +1,7 @@
 
+
+
+
 surface.CreateFont( "Button", {
 	font = "DermaDefault",
 	size = ScrH() * .0166,
@@ -328,7 +331,7 @@ end
   
 
 
-	if( !file.Exists( "dd/db/vgui.txt","DATA") and !file.Exists( "dd/db/vgui_names.txt","DATA") ) then
+//	if( !file.Exists( "dd/db/vgui.txt","DATA") and !file.Exists( "dd/db/vgui_names.txt","DATA") ) then
 
 	--[[---------------------------------------------------------
    		local str =  file.Read("vgui/".. v .. "","LUA") or ""
@@ -388,12 +391,13 @@ end
 					
 					if( show ) then
 				
-					
+		
 						if( GetClassNameByFile( v ) != nil ) then
 							if( DDP.vgui[GetClassNameByFile( v )] != nil ) then
 							local f = false
 							local exist = false
 							local content = {}
+						
 								for a,b in ipairs( known ) do
 								
 									if( string.find(  string.lower(func), string.lower(b.name) , 0 ) ) then f = true content = known[a]  end
@@ -408,7 +412,7 @@ end
 								 end
 
 								if( !exist ) then
-
+								
 									if( f ) then
 										table.insert(DDP.vgui[GetClassNameByFile( v )], content )
 
@@ -436,6 +440,7 @@ end
 									table.insert(DDP.vgui[GetClassNameByFile( v )], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
 
 								end
+								
 							end
 						else
 
@@ -450,30 +455,22 @@ end
 		end
     --    print( "check" )
         
-        if( #DDP.vgui > 0 ) then
+        if( #table.GetKeys( DDP.vgui ) > 0 ) then
         print( "Write DDP.vgui")
-        PrintTable( DDP.vgui )
 		    file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) )
         end
 
 
-
-		for k,v in ipairs( t ) do
-
+	for k,v in ipairs( t ) do
 		local classname = (string.Explode( "" .. [["]] .. "", v )[2] )
-			if( classname != nil and classname != "" ) then
-				if( vgui.GetControlTable(classname) ) then
-
-					table.insert( DDP.toolbox, { classname = classname, count = 0 } ) 
-
-				end
-
+		if( classname != nil and classname != "" ) then
+			if( vgui.GetControlTable(classname) ) then
+				table.insert( DDP.toolbox, { classname = classname, count = 0 } ) 
 			end
-
 		end
-        if( # DDP.toolbox > 0 ) then
-		    file.Write( "dd/db/vgui_names.txt", util.TableToJSON( DDP.toolbox ) )
-        end
+	end
+    if( #DDP.toolbox > 0 ) then
+	  file.Write( "dd/db/vgui_names.txt", util.TableToJSON( DDP.toolbox ) )
 	else
         if( file.Exists( "dd/db/vgui.txt","DATA" ) ) then
 		    local tab = util.JSONToTable( file.Read( "dd/db/vgui.txt","DATA" ) )
@@ -552,7 +549,7 @@ Name: CreateFrameFile( name )
 -----------------------------------------------------------]]
 function CreateFrameFile( name )
 local name = name .. "_lua"
-local path = "db/projects/"
+local path = "dd/db/projects/"
 local parent = "frame"
 local fname = "RunWindow"
 
@@ -562,9 +559,6 @@ file.Write(path .. name .. ".txt", "" .. [[local function ]] .. fname .. [[()
 local frame = vgui.Create("]] .. DDP.frame:GetTable().Derma.ClassName .. [[")
 frame:SetPos( ]] .. DDP.frame.x / ScrW() .. [[ * ScrW(), ]] .. DDP.frame.y / ScrH() .. [[ * ScrH() )
 frame:SetSize( ]] .. DDP.frame:GetWide() / ScrW() .. [[ * ScrW(), ]] .. DDP.frame:GetTall() / ScrH() .. [[ * ScrH() ) ]] .. "\nframe:MakePopup()\n")
-
-
-
 for k,v in ipairs( DDP.elemente ) do
     if( v != nil ) then
         if( v:IsValid() ) then
@@ -589,14 +583,14 @@ for k,v in ipairs( DDP.elemente ) do
 		        end
 
 	        end
-            file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n" .. str .. "")
+			file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n" .. str .. "")
+			
         end
     end
 
 end
 
 	file.Write(path .. name .. ".txt", "" .. file.Read(path .. name .. ".txt","DATA") .. "\n end\n" .. fname .. "()")
-	Msg( file.Read(path .. name .. ".txt","DATA") )
 	RunString( file.Read(path .. name .. ".txt","DATA") ) 
 
 	hook.Call( "DDP_Debug", nil, name  )
@@ -825,6 +819,16 @@ end
    Name: AutoSaveProjectFile
 -----------------------------------------------------------]]
 function AutoSaveProjectFile( name, content )
+
+--fillme!
+
+end
+
+
+--[[---------------------------------------------------------
+   Name: PanelMethodsFromWiki
+-----------------------------------------------------------]]
+function PanelMethodsFromWiki( name )
 
 --fillme!
 

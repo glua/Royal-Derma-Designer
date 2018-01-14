@@ -62,7 +62,7 @@ frame:MakePopup()
 						 e:SetPos( 0.10806174957118 * frame:GetWide(), 0.32 * frame:GetTall() )
 						 e:SetSize( 0.39108061749571 * frame:GetWide(), 0.2 * frame:GetTall() )
 						 e:SetDisabled( false )
-						 e:SetText( "Möchten Sie die Transformation anwenden ?" )
+						 e:SetText( "Mï¿½chten Sie die Transformation anwenden ?" )
 						
  local e = vgui.Create( "DImage", frame )
 						 e:SetPos( 0.0085763293310463 * frame:GetWide(), 0.32 * frame:GetTall() )					
@@ -221,6 +221,9 @@ local function CreateTransform( typ, x, y, w, h, parent, data, poly )
 	t:SetTyp( typ )
 	elseif( typ == "4poly" or typ == "poly" ) then
 
+
+		// poly
+
 		local tx = {}
 		local ty = {}
 		for k,v in ipairs( poly ) do
@@ -235,10 +238,50 @@ local function CreateTransform( typ, x, y, w, h, parent, data, poly )
 		local t = vgui.Create( "DDTransform", parent )
 		t:SetPos( tx[#tx],ty[#ty] )
 		t:SetSize( tx[1] - tx[#tx], ty[1] - ty[#ty] )
+
+
+		local mid_x = tx[#tx] + t:GetWide()*.5
+		local mid_y = ty[#ty] + t:GetTall()*.5
+
+		local relative = {}
+		//Relative Position 
+		for k,v in ipairs( poly ) do
+			local tmp = {x=nil,y=nil,vx=nil,vy=nil}
+			local x = mid_x - v.x
+			local y = mid_y - v.y
+			if( x > 0 ) then//  section 1 rechts
+				tmp.vx = 1
+				tmp.x = x
+			else // section 0 links
+				x = math.abs(x)
+				tmp.vx = 0
+				tmp.x = x
+			end
+
+			if( y > 0 ) then //  section 2 oben
+
+				tmp.vy = 1
+				tmp.y = y
+			else // section 3 unten
+			y = math.abs(y)
+				tmp.vy = 0
+				tmp.y = y
+			end
+			table.insert(relative, tmp)
+		end
+
+PrintTable(relative)
+
+
+
+
+
+
+
 		t:SetDraw( true )
 		t:SetDrawTable( data )
 		t:SetTyp( typ )
-		t:SetInit( { tx[#tx],ty[#ty], tx[1] - tx[#tx], ty[1] - ty[#ty], poly } )
+		t:SetInit( { tx[#tx],ty[#ty], tx[1] - tx[#tx], ty[1] - ty[#ty], relative } )
 
 	elseif( typ == "rect" or typ == "orect" ) then
 
@@ -251,7 +294,27 @@ local function CreateTransform( typ, x, y, w, h, parent, data, poly )
 	end
 
 
+/*
 
+local tx = {}
+local ty = {}
+for k,v in ipairs( poly ) do
+
+	table.insert( tx, v.x )
+	table.insert( ty, v.y )
+
+end
+table.sort( tx, function( a, b ) return a > b end )
+table.sort( ty, function( a, b ) return a > b end )
+
+local t = vgui.Create( "DDTransform", parent )
+t:SetPos( tx[#tx],ty[#ty] )
+t:SetSize( tx[1] - tx[#tx], ty[1] - ty[#ty] )
+t:SetDraw( true )
+t:SetDrawTable( data )
+t:SetTyp( typ )
+t:SetInit( { tx[#tx],ty[#ty], tx[1] - tx[#tx], ty[1] - ty[#ty], poly } )
+*/
 
 end
 
@@ -493,7 +556,7 @@ function EPanel:Think( )
 			for k,v in ipairs( DDP_Designer.Projects ) do
 
 				if( v.panel:GetParent() == sheet:GetActiveTab()  ) then
-					print( DDP_Designer.Projects[k].layer.id )
+				//	print( DDP_Designer.Projects[k].layer.id )
 				end
 			end
 			sheet_active = sheet:GetActiveTab()
