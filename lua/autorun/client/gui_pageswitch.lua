@@ -7,11 +7,11 @@ PANEL = {}
 function PANEL:Init()
 
     self.pages = {}
-    self.buttons = {}
     self.index = 1
     self.next = vgui.Create("GButton", self)
     self.prev = vgui.Create("GButton", self)
     self.canvas = vgui.Create("DPanel", self)
+    self.label = vgui.Create("DLabel", self)
 end
 
 --[[---------------------------------------------------------
@@ -20,18 +20,9 @@ end
 function PANEL:AddPage( page )
 
     table.insert( self.pages, page )
+    page:SetSize( self:GetWide(),self:GetTall()*.9)
+    page:SetParent(self.canvas)
 
-    local _w = math.abs( ( self:GetWide()*.25 + 25 )  - self:GetWide() * .75  )
-    local gap = math.floor( _w - ( #self.pages * 25 + 10 ) )
-
-    button = vgui.Create("GButton", self)
-    button:SetSize(25,25)
-    local x,y = self.buttons[#self.buttons]:GetPos()
-    Msg(x .. "\n")
-    if( #self.buttons > 1 ) then button:SetPos( (self:GetWide() * 0.25 + 25) + gap + x , self:GetTall() * .9) else 
-    button:SetPos( (self:GetWide() * 0.25 + 25) + gap , self:GetTall() * .9)
-    end
-    table.insert(self.buttons, button)
 end
 
 
@@ -39,18 +30,6 @@ end
    Name: 
 -----------------------------------------------------------]]
 function PANEL:Paint( w, h )
-local _w,_h = w,h
-    if( #self.pages > 0 ) then
-       for k,v in ipairs( self.pages ) do
-        if( #self.buttons < 1 ) then return end
-      self.buttons[k].Paint = function( self )
-            surface.SetDrawColor( 255,0,0,255 )
-            surface.DrawRect( 0,0,_w,_h)
-          end
-
-      end
-
-    end
 
 end
 
@@ -76,7 +55,6 @@ function PANEL:visible()
         end
     end
 
-
 end
 
 --[[---------------------------------------------------------
@@ -86,41 +64,41 @@ function PANEL:PerformLayout( w, h )
 
 local main = self
 
-
-    
-    
     self.canvas:SetSize(w,h*.9)
     self.canvas:SetPos(0,0)
-
-    for k,v in ipairs( self.pages) do
-        v:SetParent(self.canvas)
+    function self.canvas:Paint(w,h)
+        surface.SetDrawColor(0,0,0,0)
+        surface.DrawRect(0,0,w,h)
     end
+
+    self.label:SetText(self.index)
+    self.label:SetPos(w*.5 ,h*.9)
+    self.label:SetSize(25,25)
+
 
     self.prev:SetSize( 25,25 )
     self.prev:SetPos( w * .25, h *.9)
     self.prev:SetText( "<" )
     function self.prev:Clicked()
+        if( self:IsSelected() ) then 
+            self:SetSelected(false)
+        end
         if( main.index == 1 ) then return end
         main.index = main.index - 1
-        for k,v in ipairs( main.pages ) do
-            main.buttons[k].Clicked = function()
-                main.index = k
-            end
-        end
-       main:visible()
+        main.label:SetText(main.index)
+      main:visible()
     end
 
     self.next:SetSize( 25,25 )
     self.next:SetPos( w * .75, h *.9)
     self.next:SetText( ">" )
     function self.next:Clicked()
+        if( self:IsSelected() ) then 
+            self:SetSelected(false)
+        end
         if( main.index == #main.pages ) then return end
         main.index = main.index + 1
-        for k,v in ipairs( main.pages ) do
-             main.buttons[k].Clicked = function()
-                main.index = k
-            end
-        end
+        main.label:SetText(main.index)
         main:visible()
     end
 

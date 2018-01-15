@@ -871,18 +871,20 @@ local testswitcher = vgui.Create("DDPageSwitch", frame)
 local panel1 = vgui.Create("DPanel")
 
 local button1 = vgui.Create("DButton",panel1)
-button1:SetPos(50,50)
+button1:SetPos(175,250)
 button1:SetSize(150,20)
-
+button1:SetText("21314523534")
 local panel2 = vgui.Create("DPanel")
 
 local button2 = vgui.Create("DButton",panel2)
-button2:SetPos(50,100)
+button2:SetPos(150,300)
+button2:SetText("asdjkaj1832238sdlkasjdk")
 button2:SetSize(150,20)
 local panel3 = vgui.Create("DPanel")
 
 local button3 = vgui.Create("DButton",panel3)
-button3:SetPos(50,150)
+button3:SetText("asdjkajsdlkasjdk")
+button3:SetPos(150,150)
 button3:SetSize(150,20)
 
 
