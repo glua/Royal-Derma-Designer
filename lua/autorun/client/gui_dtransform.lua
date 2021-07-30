@@ -335,33 +335,41 @@ local backup = { x = self.x, y = self.y, w = self:GetWide(), h = self:GetTall() 
 									if( self.m_ityp == "rect" or self.m_ityp == "orect" ) then
 										d.x, d.y, d.w, d.h = self.x + 4, self.y + 4, self:GetWide()-8, self:GetTall()-8
 									elseif( self.m_ityp == "poly" or self.m_ityp == "4poly" ) then
-									
-										//[vx] 0 = links ; 1 = rechts
-										//[vy] 0 = unten  ; 1 = oben
-										// orgin = x,y
-										local mid_x = self.x + self:GetWide() *1.5
-										local mid_y = self.y + self:GetTall() 
-										print( mid_x, mid_y)
-										local tmp = {}
-										for k,v in ipairs( self.m_tinit[5] ) do
-											local x = nil
-											local y = nil 
-											if( v.vx == 1 ) then
-												x = mid_x + v.x
-											else
-												x = mid_x - v.x
-											end
+										local data = self.m_tinit[5]
+										local origin = {}
+										local change = {}
+										local percentw = self:GetWide() / self.m_tinit[3]
+										local percenth = self:GetTall() / self.m_tinit[4] 
 
-											if( v.vy == 1 ) then
-												y = mid_y + v.y
-											else
-												y = mid_y - v.y
-											end
-											table.insert( tmp, {x = x, y = y })
+										for k,v in ipairs( data ) do
+
+											local x = math.abs( v.x - self.x ) / self.m_tinit[3]
+											local y = math.abs( v.y - self.y ) / self.m_tinit[4]
+											table.insert( origin, { x = x, y = y } )
+
 										end
-										d.poly = table.Copy(tmp)
 
-									PrintTable( tmp )
+										for k,v in ipairs( data ) do
+
+											for a,b in ipairs( origin ) do
+
+												local x = b.x * self:GetWide()
+												local y = b.y * self:GetTall()
+
+												if( x <= 0 ) then x = self.x end
+												if( y <= 0 ) then y = self.y end
+
+												if( #change < #data ) then
+													table.insert( change, { x = x + self.x, y = y + self.y } )
+												end
+
+											end
+
+										end
+
+										d.poly = table.Copy( change )
+
+										PrintTable( change )
 									elseif( self.m_ityp == "circle" ) then
 										d.x, d.y, d.w  = self.x + d.w , self.y + d.w,  self:GetWide() * .5
 										self:SetTall( self:GetWide()  )
@@ -447,11 +455,6 @@ function PANEL:Paint( w, h )
 
 	surface.SetDrawColor( self.m_tcolor )
 	surface.DrawOutlinedRect( 0,0,w,h)
-
-	local mid_x = self.x + self:GetWide() * .5
-	local mid_y = self.y + self:GetTall() * .5
-	surface.SetDrawColor( Color(0,255,0,255) )
-	surface.DrawRect(mid_x, mid_y, 5 , 5)
 	
 end
 

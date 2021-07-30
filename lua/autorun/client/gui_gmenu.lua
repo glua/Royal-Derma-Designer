@@ -14,7 +14,7 @@ function PANEL:Init()
 
 self:MakePopup()
 	self.close = vgui.Create("DButton",self)
-	self.close.Paint = function( panel, w, h ) surface.SetDrawColor(255,255,255,255) 	surface.SetMaterial( Material("clan/cross5.png")) surface.DrawTexturedRect( 0,0, w, h) end
+	self.close.Paint = function( panel, w, h ) surface.SetDrawColor(255,255,255,255) 	surface.SetMaterial( Material("dd/gui/cross5.png")) surface.DrawTexturedRect( 0,0, w, h) end
 	self.drag = nil
 	self.title = ""
     self.xa = 0
