@@ -53,7 +53,7 @@ local e = vgui.Create("DListView",saveframe)
 	 	 e:AddColumn( "Author" )
 		 e:AddColumn( "VGUI" )
 
-	 	local files, dir = file.Find( "db/projects/*.txt", "DATA", "nameasc" )
+	 	local files, dir = file.Find( "dd/db/projects/*.txt", "DATA", "nameasc" )
 
 		for k,v in ipairs( files ) do
 		local f = string.Explode("_",v)
@@ -97,7 +97,7 @@ local listview = vgui.Create("DListView",loadframe)
 		filename:SetText( Line:GetColumnText( 1 ) )
 		 end
 
-	 	local files, dir = file.Find( "db/projects/*.txt", "DATA", "nameasc" )
+	 	local files, dir = file.Find( "dd/db/projects/*.txt", "DATA", "nameasc" )
 
 		for k,v in ipairs( files ) do
 

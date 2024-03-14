@@ -64,7 +64,7 @@ end
 
 	
 			surface.SetDrawColor( Color(255,255,255,255))
-			surface.SetMaterial( Material("DD/gui/empty_space.png") )
+			surface.SetMaterial( Material("dd/gui/empty_space.png") )
 			surface.DrawTexturedRect( v.x, v.y, v.w, v.h )
 			if( self.m_bhelp ) then
 			surface.SetDrawColor(42,42,42,150)

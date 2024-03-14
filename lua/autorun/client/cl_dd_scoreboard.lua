@@ -21,7 +21,7 @@ frame:SetDraggable( false )
 	 local image_back = vgui.Create("DImage")
 	 image_back:SetPos(0,0)
 	 image_back:SetSize(board.panel[1]:GetWide(),board.panel[1]:GetTall() * .5)
-	 image_back:SetImage("DD/gui/scoreboard.png")
+	 image_back:SetImage("dd/gui/scoreboard.png")
 	 image_back.PaintOver = function( self, w, h )
 	 
 		surface.SetDrawColor( scoreboard.color )
@@ -82,28 +82,28 @@ frame:SetDraggable( false )
 	 local image_header = vgui.Create("DImage")
 	 image_header:SetPos(0,0)
 	 image_header:SetSize(board.panel[1]:GetWide(),board.panel[1]:GetTall() * .5)
-	 image_header:SetImage("DD/gui/scoreboard.png")
+	 image_header:SetImage("dd/gui/scoreboard.png")
 	 board:AddItem( image_header, 2 )
 
 
 	 local image_infobox = vgui.Create("DImage")
 	 image_infobox:SetPos(0,0)
 	 image_infobox:SetSize(board.panel[1]:GetWide(),board.panel[1]:GetTall() * .5)
-	 image_infobox:SetImage("DD/gui/scoreboard.png")
+	 image_infobox:SetImage("dd/gui/scoreboard.png")
 	 board:AddItem( image_infobox, 3 )
 
 
 	 local image_pframe = vgui.Create("DImage")
 	 image_pframe:SetPos(0,0)
 	 image_pframe:SetSize(board.panel[1]:GetWide(),board.panel[1]:GetTall() * .5)
-	 image_pframe:SetImage("DD/gui/scoreboard.png")
+	 image_pframe:SetImage("dd/gui/scoreboard.png")
 	 board:AddItem( image_pframe, 4 )
 
 
 	 local image_bottom = vgui.Create("DImage")
 	 image_bottom:SetPos(0,0)
 	 image_bottom:SetSize(board.panel[1]:GetWide(),board.panel[1]:GetTall() * .5)
-	 image_bottom:SetImage("DD/gui/scoreboard.png")
+	 image_bottom:SetImage("dd/gui/scoreboard.png")
 	 board:AddItem( image_bottom, 5 )
 	end
 
@@ -170,7 +170,7 @@ frame:SetSize(526,544)
  local e = vgui.Create("DImage",frame)
 						 e:SetPos(0.015209125475285*frame:GetWide() ,0.058823529411765*frame:GetTall())
 						 e:SetSize(0.97338403041825*frame:GetWide(),0.35845588235294*frame:GetTall())
-						 e:SetImage("DD/gui/scoreboard.png")
+						 e:SetImage("dd/gui/scoreboard.png")
 						 function e:PaintOver( w, h )
 						 local wp,hp = tonumber(width:GetText()) or 0,tonumber(height:GetText()) or 0
 						 local x,y = tonumber(xpos:GetText()) or 0 ,tonumber(ypos:GetText()) or 0
