@@ -49,21 +49,32 @@ local DDP_PANEL_BOTTOM = 4
 local function Main()
 local time = CurTime()
 local Mainf = vgui.Create( "GMenu" )
-Mainf:SetPos( ScrW() - .1817 * ScrW(), 0 )
+Mainf:SetPos( ScrW() - .1817 * ScrW()+1, 0 )
 Mainf:SetSize(  .1817 * ScrW(), ScrH() )
 Mainf:SetTitle( "Derma Designer " .. DDP.version )
 Mainf:SetDraggable( false )
 Mainf:SetVisible( true )
 Mainf:MakePopup()
 
+Mainf.Close = function(t)
+	if DDP.frame and DDP.frame:IsValid() then
+		DDP.frame:Remove()
+		DDP.frame = nil
+		table.Empty(DDP.elemente)
+		table.Empty(DDP.selected)
+	end
+
+	t:Remove()
+end
+
 	  local fadeout = vgui.Create("DImageButton",Mainf)
 	  fadeout:SetPos(0,0)
 	  fadeout:SetSize( Mainf:GetWide() * .0914, 30 )
-	  fadeout:SetImage("DD/gui/close.png")
+	  fadeout:SetImage("dd/gui/close.png")
 	  fadeout.DoClick = function()
 
-	  if( fadeout:GetImage() == "DD/gui/close.png" ) then
-		fadeout:SetImage("DD/gui/open.png")
+	  if( fadeout:GetImage() == "dd/gui/close.png" ) then
+		fadeout:SetImage("dd/gui/open.png")
 		Mainf:SetSize( fadeout:GetWide(), fadeout:GetTall() )
 		Mainf:SetPos(ScrW() - fadeout:GetWide(),0)
 		Mainf:SetTitle( "" )
@@ -73,7 +84,7 @@ Mainf:MakePopup()
         end
 	  else
       
-		  fadeout:SetImage("DD/gui/close.png")
+		  fadeout:SetImage("dd/gui/close.png")
 		  Mainf:SetPos( ScrW() - .1817 * ScrW(), 0 )
 		  Mainf:SetSize( .1817 * ScrW(), ScrH() )
 		  Mainf:SetTitle( "Derma Designer " .. DDP.version )
@@ -225,7 +236,7 @@ Mainf:MakePopup()
 			DDListButtom = vgui.Create( "DDListButtom" )
 			DDListButtom:SetPos( 25, 50 ) 
 			if(file.Exists("materials/dd/icons/" .. v.classname .. ".png","GAME")) then
-			DDListButtom:SetImage("DD/icons/" .. v.classname .. ".png" )  --Game freeze huge fps drop!
+			DDListButtom:SetImage("dd/icons/" .. v.classname .. ".png" )  --Game freeze huge fps drop!
 			end
 			--"DD/icons/default.png"
 			DDListButtom:Droppable("ele")
@@ -234,14 +245,14 @@ Mainf:MakePopup()
 			function DDListButtom:DoClick() 
 			local classname = self:GetText()
 			DDP.icon = classname
-			if( timer.Exists( "ddp_place" ) ) then timer.Destroy( "ddp_place" ) end
+			if( timer.Exists( "ddp_place" ) ) then timer.Remove( "ddp_place" ) end
 			
 				--[[---------------------------------------------------------
 				local classname = tostring(self:GetText())
 
 				-----------------------------------------------------------]]
 				timer.Create( "ddp_place", 0.00001, 0, function()
-				if( !DDP.frame ) then  timer.Destroy( "ddp_place" ) return end
+				if( !DDP.frame ) then  timer.Remove( "ddp_place" ) return end
 					 if( DDP.frame:IsHovered() ) then 
 					
 						if( input.IsMouseDown( MOUSE_LEFT ) ) then 
@@ -259,7 +270,7 @@ Mainf:MakePopup()
 							test:SetSize( DDP.elemente[val]:GetWide(), DDP.elemente[val]:GetTall() )
 							test:SetTPanel( DDP.elemente[val] )
 						
-							timer.Destroy( "ddp_place" )
+							timer.Remove( "ddp_place" )
 						end 
 					end
 				end )
@@ -274,106 +285,164 @@ Mainf:MakePopup()
 		if( old != DDP.selected[1]) then
 			old = DDP.selected[1]
 			--#DDP.selected < 1
-			if(DDP.selected[1] == nil ) then  print("no more selected") return end 
-			if( DProperties:IsValid() ) then
+			local currentPanel = DDP.selected[1]
+
+			if( currentPanel and currentPanel:IsValid() and DProperties:IsValid() ) then
 				DProperties:Remove()
 				DProperties = vgui.Create( "DProperties" )
 			
 				Row2 = DProperties:CreateRow( "Properties", "IsVisible" )
 				Row2:Setup( "Boolean" )
-				Row2:SetValue( DDP.selected[1]:IsVisible() )
-				--Row2:SetValue( false )
-			
-				Row2.DataChanged = function( _, val ) DDP.selected[1]:SetVisible(tobool(val)) print(val)end
-				if( DDP.vgui[DDP.selected[1].ClassName] && DDP.selected[1] != nil ) then
-					
-						AS = {}
-						
-						for a,b in ipairs( DDP.vgui[DDP.selected[1].ClassName] ) do 
-							ST={}
+				Row2:SetValue( currentPanel:IsVisible() )
+				Row2.DataChanged = function( _, val ) currentPanel:SetVisible(tobool(val)) end
 
-								if( b.typ == "string" ) then
-									RunString( [[local succ, err = pcall( function() DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[()]] .. [[ end ) if( succ ) then  ST[1] = DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[() else ST[1] = "text" end]] ) 
+				if( DDP.vgui[currentPanel.ClassName] ) then
+					print(currentPanel.ClassName)
+						for a,b in ipairs( DDP.vgui[currentPanel.ClassName] ) do 
+							if istable(b) then
+								local newValue
+								local typestr = string.lower(b.typ)
+								local func = currentPanel["Get" .. string.sub( b.name, 4, #b.name )]
+
+								if( typestr == "string" ) then
+									 if func then
+										newValue = func(currentPanel)
+										if newValue == nil then newValue = "text" end
+									 else
+										newValue = "text"
+									 end
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "Generic" )
-									 c:SetValue( ST[1] )
-									 c.DataChanged = function( _, val ) RunString([[DDP.selected[1]:]] .. b.name .. [[("]] .. val .. [[")]])  end
-								elseif( b.typ == "number" ) then
-									RunString( [[local succ, err = pcall( function() DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[()]] .. [[ end ) if( succ ) then  ST[1] = DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[() else ST[1] = 1.0 end]] ) 
+									 c:SetValue( newValue )
+									 c.DataChanged = function( _, val ) if currentPanel[b.name] then currentPanel[b.name](currentPanel, val) end end
+								elseif( typestr == "number" ) then
+									 if func then
+										newValue = func(currentPanel)
+										if newValue == nil then newValue = 1.0 end
+									 else
+										newValue = 1.0
+									 end
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "Float", {min = 0, max = 255 } )
-									 c:SetValue( ST[1] )
-									 c.DataChanged = function( _, val ) RunString([[DDP.selected[1]:]] .. b.name .. [[(]] .. val .. [[)]] ) end
-								elseif( b.typ == "boolean") then
-									RunString( [[local succ, err = pcall( function() DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[()]] .. [[ end ) if( succ ) then  ST[1] = DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[() else ST[1] = false end]] ) 
+									 c:SetValue( newValue )
+									 c.DataChanged = function( _, val ) if currentPanel[b.name] then currentPanel[b.name](currentPanel, val) end end
+								elseif( typestr == "boolean") then
+									 if func then
+										newValue = func(currentPanel)
+										if newValue == nil then newValue = false end
+									 else
+										newValue = false
+									 end
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "Boolean" )
-									 c:SetValue( ST[1] )
-									 c.DataChanged = function( _, val )  RunString([[DDP.selected[1]:]] .. b.name .. [[(]] .. val .. [[)]]) end
-								elseif( b.typ == "table" or b.typ == "color" ) then
-									RunString( [[local succ, err = pcall( function() DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[()]] .. [[ end ) if( succ ) then  ST[1] = DDP.selected[1]:Get]] .. string.sub( b.name, 4, #b.name ) .. [[() else ST[1] = Vector(0,0,0) end]] ) 
+									 c:SetValue( newValue )
+									 c.DataChanged = function( _, val ) if currentPanel[b.name] then currentPanel[b.name](currentPanel, val) end end
+								elseif( typestr == "table" or typestr == "color" ) then
+									 if func then
+										newValue = func(currentPanel)
+										if newValue == nil then newValue = vector_origin end
+									 else
+										newValue = vector_origin
+									 end
+
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "VectorColor" )
-									 if( isstring( ST[1] ) )then
+									 local s = 1/255
+									 if( isstring( newValue ) )then
 									 c:SetValue( Vector( 1,1,1))
-									 elseif( ST[1] == nil and b.typ == "color" ) then 
+									 elseif( newValue == nil and typestr == "color" ) then 
 									 c:SetValue( Vector( 1,1,1 ) )
 									 else
-									 c:SetValue( Vector( ST[1].r/255, ST[1].g/255, ST[1].b/255 ) )
+										c:SetValue( Vector( newValue.r*s, newValue.g*s, newValue.b*s ) )
 									 end
-									 c.DataChanged = function( _, val )  col = string.Explode(" ",val) Col = Color(col[1],col[2],col[3])  RunString([[DDP.selected[1]:]] .. b.name .. [[( Color(Col.r * 255, Col.g* 255, Col.b * 255) )]])   end
-								elseif( b.typ == "no value" ) then
-								
+									 c.DataChanged = function( _, val )
+										local clr = val
+										if isstring(val) then
+											local col = string.Explode(" ", val)
+											clr = Color(col[1] * 255,col[2] * 255,col[3] * 255)
+											c:SetValue(Vector(col[1], col[2], col[3]))
+										else
+											c:SetValue(val)
+										end
+										if currentPanel[b.name] then currentPanel[b.name](currentPanel, clr) end
+									 end
+								elseif( typestr == "no value" ) then
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "Generic" )
 									 c:SetValue("novalue" )
 									 c.DataChanged = function( _, val )  end
-								elseif( b.typ == "nil") then
+								elseif( typestr == "nil") then
+									 if func then
+										newValue = func(currentPanel)
+										if newValue == nil then newValue = "nil" end
+									 else
+										newValue = "nil"
+									 end
 									 c = DProperties:CreateRow( "Settings", b.name )
 									 c:Setup( "Generic" )
-									 c:SetValue( ST[1] )
-									 c.DataChanged = function( _, val ) RunString([[DDP.selected[1]:]] .. b.name .. [[("]] .. val .. [[")]])  end
-								end
+									 c:SetValue( newValue )
+									 c.DataChanged = function( _, val ) if currentPanel[b.name] then currentPanel[b.name](currentPanel, val) end end
+								elseif(typestr == "function") then
+									-- c = DProperties:CreateRow("Advanced", b.name)
+									-- c:Setup("Generic")
+									-- c:SetValue(ST[1])
 
+									-- c.DataChanged = function(_, val)
+										-- RunString([[DDP.selected[1].]]..b.name..[[ = function() ]]..val..[[end]])
+									-- end
+
+									-- c = DProperties:CreateRow("Paint", "Paint")
+									-- c:Setup("Generic")
+									-- c:SetValue(ST[1])
+									-- c.DataChanged = function(_, val)
+										-- RunString([[DDP.selected[1].Paint = function(self, w, h) ]]..val..[[end]])		
+									-- end
+								end
+							end
 						end
 				 end
+
 				DProperties:SetSize( Mainf:GetWide(), Mainf:GetTall()*0.5 )
 				DProperties:SetPos(0,Mainf:GetTall()*0.5)
 				t:AddItem(DProperties,1)
-			  else
 			end
 		end
 	end
-	 
-		 DProperties = vgui.Create( "DProperties" )
-		 Row2 = DProperties:CreateRow( "Properties", "IsVisible" )
-		 Row2:Setup( "Boolean" )
-		 Row2:SetValue( true )
 
-		 Row3 = DProperties:CreateRow( "Settings", "X" )
-		 Row3:Setup( "Float", {min = 0, max = ScrW()} )
-		 Row3:SetValue( 2.5 )
+	DProperties = vgui.Create( "DProperties" )
+	Row2 = DProperties:CreateRow( "Properties", "IsVisible" )
+	Row2:Setup( "Boolean" )
+	Row2:SetValue( true )
+	Row2.DataChanged = function( _, val ) DDP.frame:SetVisible(val) end
 
-		 Row4 = DProperties:CreateRow( "Settings", "Y" )
-		 Row4:Setup( "Float", {min = 0, max = ScrH()} )
-		 Row4:SetValue( 2.5 )
+	Row3 = DProperties:CreateRow( "Settings", "X" )
+	Row3:Setup( "Float", {min = 0, max = ScrW()} )
+	Row3:SetValue( 2.5 )
+	Row3.DataChanged = function( _, val ) DDP.frame:SetX(val) end
 
-		 Rowa = DProperties:CreateRow( "Settings", "W" )
-		 Rowa:Setup( "Float", {min = 0, max = ScrW()} )
-		 Rowa:SetValue( 2.5 )
+	Row4 = DProperties:CreateRow( "Settings", "Y" )
+	Row4:Setup( "Float", {min = 0, max = ScrH()} )
+	Row4:SetValue( 2.5 )
+	Row4.DataChanged = function( _, val ) DDP.frame:SetY(val) end
 
-		 Rowb = DProperties:CreateRow( "Settings", "H" )
-		 Rowb:Setup( "Float", {min = 0, max = ScrH()} )
-		 Rowb:SetValue( 2.5 )
+	Rowa = DProperties:CreateRow( "Settings", "W" )
+	Rowa:Setup( "Float", {min = 0, max = ScrW()} )
+	Rowa:SetValue( 2.5 )
+	Rowa.DataChanged = function( _, val ) DDP.frame:SetWide( val ) end
 
-		 Row5 = DProperties:CreateRow( "Settings", "Text" )
-		 Row5:Setup( "Generic" )
-		 Row5:SetValue( DDP.frame.lblTitle:GetText())
-		 Row5.DataChanged = function( _, val ) DDP.frame.lblTitle:SetText(val) end
-		 
-		DProperties:SetSize( Mainf:GetWide(), Mainf:GetTall()*0.5 )
-		DProperties:SetPos(0,Mainf:GetTall()*0.5)
-		t:AddItem(DProperties,1)
+	Rowb = DProperties:CreateRow( "Settings", "H" )
+	Rowb:Setup( "Float", {min = 0, max = ScrH()} )
+	Rowb:SetValue( 2.5 )
+	Rowb.DataChanged = function( _, val ) DDP.frame:SetTall( val ) end
+
+	Row5 = DProperties:CreateRow( "Settings", "Text" )
+	Row5:Setup( "Generic" )
+	Row5:SetValue( DDP.frame:GetTitle() )
+	Row5.DataChanged = function( _, val ) DDP.frame:SetTitle( val ) end
+
+	DProperties:SetSize( Mainf:GetWide(), Mainf:GetTall()*0.5 )
+	DProperties:SetPos(0,Mainf:GetTall()*0.5)
+	t:AddItem(DProperties,1)
 end
 
 --[[---------------------------------------------------------
@@ -540,7 +609,7 @@ menu_pressed:AddOption( "cut", function()
 			) 
 menu_pressed:AddOption( "delete", function()-- for k,v in ipairs( table.GetKeys( DProperties.Categories ) ) do DProperties.Categories[v]:Clear() end 
 DDP.selected[1]:Remove() table.remove(DDP.elemente,table.KeyFromValue( DDP.elemente, DDP.selected[1] ) ) table.Empty(DDP.selected) menu_pressed = nil  end ) 
-menu_pressed:AddOption( "Code display", function() CodeView(  GetCurrentCode( ), DDP.Name ) menu_pressed = nil  end ) 
+menu_pressed:AddOption( "View Code", function() CodeView(  GetCurrentCode( ), DDP.Name ) menu_pressed = nil  end ) 
 menu_pressed:Open()
 
 
@@ -807,15 +876,16 @@ hook.Add("Think","DDP_vgui_think",CheckSelected)
 --[[---------------------------------------------------------
    Name: 
 -----------------------------------------------------------]]
-function DebugHud()
+local debug_Color = Color(255,0,0,255)
+local function DebugHud()
 
 if( DDP.frame == nil ) then return end
 
 if( DDP.selected[1] == nil ) then return end
 if( !DDP.selected[1]:IsValid() ) then return end 
 local x1,y1 = DDP.selected[1]:GetPos()
-draw.SimpleText( "Selected: " , "DermaDefault", 50, 25, Color(255,0,0,255), 1, 1 )
-draw.SimpleText( "X: " .. x1 .. " Y: " .. y1 .. " Z: " .. DDP.selected[1]:GetZPos() .. "" , "DermaDefault", 50, 50, Color(255,0,0,255), 1, 1 )
+draw.SimpleText( "Selected: " , "DermaDefault", 50, 25, debug_Color, 1, 1 )
+draw.SimpleText( "X: " .. x1 .. " Y: " .. y1 .. " Z: " .. DDP.selected[1]:GetZPos() .. "" , "DermaDefault", 50, 50, debug_Color, 1, 1 )
 
 for k,v in ipairs( DDP.elemente ) do
 
@@ -824,17 +894,13 @@ for k,v in ipairs( DDP.elemente ) do
      else
 	local fx,fy = DDP.frame:LocalCursorPos()
 	local x,y = v:GetPos()
-	draw.SimpleText( "X: " .. x .. " Y: " .. y .. " Z: " .. v:GetZPos() .. " Mousepos: " .. fy .. " " .. DDP.MousePressed[2] .. "" , "DermaDefault", 50, 50+k*25, Color(255,0,0,255), 1, 1 )
+	draw.SimpleText( "X: " .. x .. " Y: " .. y .. " Z: " .. v:GetZPos() .. " Mousepos: " .. fy .. " " .. DDP.MousePressed[2] .. "" , "DermaDefault", 50, 50+k*25, debug_Color, 1, 1 )
     end
 	end
 	end
 end
 
 hook.Add("HUDPaint","Paint",DebugHud)
-
-
--- Set type ermitteln ] lua_run_cl a = [[ {"bla"} ]] RunString( "print(type(" .. a .. "))")
-
 
 --[[---------------------------------------------------------
    Name: 

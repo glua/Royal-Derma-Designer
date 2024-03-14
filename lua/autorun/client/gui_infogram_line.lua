@@ -101,11 +101,11 @@ end
 function PANEL:Paint( w, h )
 
 			surface.SetDrawColor( self.m_color )
-			surface.SetMaterial( Material("DD/gui/axis_out.png", "noclamp smooth") )
+			surface.SetMaterial( Material("dd/gui/axis_out.png", "noclamp smooth") )
 			surface.DrawTexturedRect( 0,0,w,h)
 
 			surface.SetDrawColor( Color( 42,42,42,255 ) )
-			surface.SetMaterial( Material("DD/gui/axis_inner.png", "noclamp smooth") )
+			surface.SetMaterial( Material("dd/gui/axis_inner.png", "noclamp smooth") )
 			surface.DrawTexturedRect( 0,0,w,h)
 end
 

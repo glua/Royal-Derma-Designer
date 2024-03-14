@@ -6,7 +6,7 @@ PANEL = {}
 -----------------------------------------------------------]]
 function PANEL:Init()
 
-	self.image = Material("DD/icons/default.png")
+	self.image = Material("dd/icons/default.png")
 	self.text = ""
 	self.colorn = Color( 62, 62, 64 , 255 )
 	self.colorh = Color( 51, 153, 255, 255 )
