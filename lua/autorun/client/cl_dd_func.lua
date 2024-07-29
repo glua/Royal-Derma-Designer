@@ -43,7 +43,7 @@ MsgC( Color( 255,215,0 ), footer .. "\n" )
 
 
 	DDP = {}
-	DDP.version = "Alpha 45w15b"
+	DDP.version = "Alpha 31w24b"
 	DDP.frame = nil
 	DDP.elemente = {}
 	DDP.selected = {}
