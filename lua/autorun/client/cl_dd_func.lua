@@ -23,7 +23,7 @@ end
 
 local head = 
 [[==============================================================
-	   Royal Derma Designer Version Alpha 45w15b
+	   Royal Derma Designer Version Alpha 31w24b
 ==============================================================
 			Changelog
 
