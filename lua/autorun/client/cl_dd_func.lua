@@ -17,8 +17,8 @@ surface.CreateFont( "Button", {
 } )
 
 --RunString
-if( !file.IsDir("DD/db","DATA" ) ) then
-	file.CreateDir("DD/db")
+if( !file.IsDir("dd/db","DATA" ) ) then
+	file.CreateDir("dd/db")
 end
 
 local head = 
@@ -47,9 +47,7 @@ MsgC( Color( 255,215,0 ), footer .. "\n" )
 	DDP.frame = nil
 	DDP.elemente = {}
 	DDP.selected = {}
-	DDP.VGUI={}
 	DDP.vgui = {}
-	DDP.test ={}
 	DDP.toolbox = {}
 	DDP.MousePos = {0,0}
 	DDP.MousePressed = { 0, 0 }
@@ -63,17 +61,19 @@ MsgC( Color( 255,215,0 ), footer .. "\n" )
 Name: FilterString( string )
 -----------------------------------------------------------]]
 local function FilterString( str )
-
-newstring = ""
+	
+local newstring = {}
+local idx = 0
 
     for i=1,#str do
-
-     if( string.sub( str, i, i ) == "(" or string.sub( str, i, i )  == ")" ) then
+		local c = string.sub( str, i, i )
+     if( c == "(" or c  == ")" ) then
         else
-         newstring = newstring .. string.sub( str, i, i )
+		 idx=idx+1
+         newstring[idx] = c
         end
     end
-    return newstring
+    return table.concat(newstring)
 end
 
 
@@ -81,16 +81,10 @@ end
 Name: GetValidMethod( panel, string )
 -----------------------------------------------------------]]
 local function GetValidMethod( panel ,method )
+	if( method == nil ) then return false end
+	if panel["Get" .. FilterString( method )] then return true end
 
-Check = false
-panel = panel
-if( method == nil ) then return false end
-
-	local Rstring = [[
-				local succ, err = pcall( function() panel:Get]] .. FilterString( method ) .. [[()]] .. [[ end )  if( succ ) then Check = true else Check = false end	]]
-	RunString(Rstring)
-
-	return Check
+	return false
 end
 
 --[[---------------------------------------------------------
@@ -98,51 +92,44 @@ Name: GetValueOfMethod( number, string )
 Desc: Get the Value of spec. panel( not mainframe )
 -----------------------------------------------------------]]
 local function GetValueOfMethod( index, method )
+	if( method == nil ) then return nil end
 
-if( method == nil ) then return nil end
+	local func = DDP.elemente[index]["Get" .. FilterString( method )]
+	if func then return func() end
 
-ValueOfMethod = nil
-
-RunString( "ValueOfMethod = DDP.elemente[" ..index .. "]:Get" .. FilterString( method )  .. "()" )
-
-return ValueOfMethod
-
+	return nil
 end
 
 --[[---------------------------------------------------------
 Name: GetTypByString( string )
 -----------------------------------------------------------]]
 function GetTypByString( str )
+	local lowerStr = string.lower(str)
 
-t = nil
-local tab = {}
-
-	if( string.find(  string.lower(str), "col" , 0, true )  or string.find(  string.lower(str), "color" , 0, true ) ) then
-
+	if( string.find(  lowerStr, "col" , 0, true )  or string.find(  lowerStr, "color" , 0, true ) ) then
 		return "color"
-	elseif( string.find(  string.lower(str), "tonumber" , 0, true ) ) then
+	elseif( string.find(  lowerStr, "tonumber" , 0, true ) ) then
 		return "number"
-	elseif( string.find(  string.lower(str), "format" , 0, true ) ) then
+	elseif( string.find(  lowerStr, "format" , 0, true ) ) then
 		return "string"
-	elseif( string.find(  string.lower(str), ":len(" , 0, true ) ) then
+	elseif( string.find(  lowerStr, ":len(" , 0, true ) ) then
 		return "number"
-	elseif( string.find(  string.lower(str), "vector" , 0, true ) ) then
+	elseif( string.find(  lowerStr, "vector" , 0, true ) ) then
 		return "vector"
-	elseif( string.find(  string.lower(str), "==" , 0, true ) or string.find(  string.lower(str), ">" , 0, true ) or string.find(  string.lower(str), "<" , 0, true ) ) then
+	elseif( string.find(  lowerStr, "==" , 0, true ) or string.find(  lowerStr, ">" , 0, true ) or string.find(  lowerStr, "<" , 0, true ) ) then
 		return "boolean"
-	elseif( string.find(  string.lower(str), "self" , 0, true ) ) then
+	elseif( string.find(  lowerStr, "self" , 0, true ) ) then
 		return "nil"
-	elseif( string.find( string.lower( str ), "%a%.%a", 0, false ) ) then
+	elseif( string.find( lowerStr, "%a%.%a", 0, false ) ) then
 		return "table"
-	elseif( string.find(  string.lower(str), "+" , 0, true ) or string.find(  string.lower(str), "-" , 0, true ) or string.find(  string.lower(str), "*" , 0, true ) or string.find(  string.lower(str), "/" , 0, true )  ) then
+	elseif( string.find(  lowerStr, "+" , 0, true ) or string.find(  lowerStr, "-" , 0, true ) or string.find(  lowerStr, "*" , 0, true ) or string.find(  lowerStr, "/" , 0, true )  ) then
 		return "number"
-	else
-		RunString( " t = type( " .. FilterString( str ) .. " ) " )
-		tab[1] = t
-		t = nil
-
-		return tab[1]
 	end
+
+	getTypByString = nil
+	RunString( " getTypByString = type( " .. FilterString( str ) .. " ) " )
+
+	return getTypByString or "nil"
 end
 
 --[[---------------------------------------------------------
@@ -201,7 +188,7 @@ function GetCatImage( n )
  n = string.lower(n)
  t = {}
  local val = ""
-	local files, dir = file.Find( "materials/DD/icons/*.png", "GAME")
+	local files, dir = file.Find( "materials/dd/icons/*.png", "GAME")
 		for k,v in ipairs( files ) do
 
 			local name = string.lower(string.TrimRight( v, ".png") )
@@ -328,28 +315,27 @@ end
   
 
 
-	if( !file.Exists( "dd/db/vgui.txt","DATA") and !file.Exists( "dd/db/vgui_names.txt","DATA") ) then
+	if( !file.Exists( "dd/db/vgui.txt","DATA") or !file.Exists( "dd/db/vgui_names.txt","DATA") ) then
 
-	--[[---------------------------------------------------------
-   		local str =  file.Read("vgui/".. v .. "","LUA") or ""
-			--	print( str )
-			--AccessorFuncs
+		-- AccessorFunc
+		for k,v in ipairs( files ) do
+			local str =  file.Read("vgui/".. v .. "","LUA") or ""
+			local className = GetClassNameByFile( v )
 			for key,value in ipairs( string.Explode( "\n", str ) ) do
-
 				local found = string.find(  string.lower(value), string.lower(needle[3]) , 0 )
 				if( found ) then
-				local name = (string.Explode( "" ..  .. "", value )[4] )
-					if( GetClassNameByFile( v ) != nil ) then
-						if( DDP.vgui[ GetClassNameByFile( v ) ] ) then
-							table.insert( DDP.vgui[ GetClassNameByFile( v )], name )
+				local name = (string.Explode( '"', value ) )[4]
+					if( className != nil ) then
+						if( DDP.vgui[ className ] ) then
+							table.insert( DDP.vgui[ className], name )
 						else
-							DDP.vgui[ GetClassNameByFile( v ) ] = {}
+							DDP.vgui[ className ] = {}
 						end
 					end
 				end
 			end
+		end
 
-	-----------------------------------------------------------]]
 		for k,v in ipairs( files ) do
 
 		--All SetValues
@@ -385,55 +371,55 @@ end
 					typ = string.sub( func, e, #func )
 
 					--get typ
-					
 					if( show ) then
 				
-					
-						if( GetClassNameByFile( v ) != nil ) then
-							if( DDP.vgui[GetClassNameByFile( v )] != nil ) then
+						local classNameByFile = GetClassNameByFile( v )
+						local lowerStrFunc = string.lower(func)
+						if( classNameByFile != nil ) then
+							if( DDP.vgui[classNameByFile] != nil ) then
 							local f = false
 							local exist = false
 							local content = {}
 								for a,b in ipairs( known ) do
 								
-									if( string.find(  string.lower(func), string.lower(b.name) , 0 ) ) then f = true content = known[a]  end
+									if( b.name and string.find(  lowerStrFunc, string.lower(b.name) , 0 ) ) then f = true content = known[a]  end
 
 								end
 
 								-- method exists
-								 for a,b in ipairs( DDP.vgui[GetClassNameByFile( v )] ) do
+								 for a,b in ipairs( DDP.vgui[classNameByFile] ) do
 
-									if( string.find(  string.lower(func), string.lower(b.name) , 0 ) ) then exist = true end
+									if( b.name and string.find(  lowerStrFunc, string.lower(b.name) , 0 ) ) then exist = true end
 
 								 end
 
 								if( !exist ) then
 
 									if( f ) then
-										table.insert(DDP.vgui[GetClassNameByFile( v )], content )
+										table.insert(DDP.vgui[classNameByFile], content )
 
 									else
-										table.insert(DDP.vgui[GetClassNameByFile( v )], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
+										table.insert(DDP.vgui[classNameByFile], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
 
 									end
 								end
 							else
-							DDP.vgui[GetClassNameByFile( v )] = {}
+							DDP.vgui[classNameByFile] = {}
 							local f = false
 							local content = {}
 								for a,b in ipairs( known ) do
 									
-									if( string.find(  string.lower(func), string.lower(b.name) , 0 ) ) then f = true content = known[a]  end
+									if( b.name and string.find(  lowerStrFunc, string.lower(b.name) , 0 ) ) then f = true content = known[a]  end
 
 								end
 								if( f ) then
 									if( #content < 1 ) then
 									else
-										table.insert(DDP.vgui[GetClassNameByFile( v )], content )
+										table.insert(DDP.vgui[classNameByFile], content )
 
 									end
 								else
-									table.insert(DDP.vgui[GetClassNameByFile( v )], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
+									table.insert(DDP.vgui[classNameByFile], { name = string.Explode( "(", func )[1], typ =  GetTypByString(TrimString(typ)) } )
 
 								end
 							end
@@ -450,9 +436,7 @@ end
 		end
     --    print( "check" )
         
-        if( #DDP.vgui > 0 ) then
-        print( "Write DDP.vgui")
-        PrintTable( DDP.vgui )
+        if( !table.IsEmpty(DDP.vgui) ) then
 		    file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) )
         end
 
@@ -489,10 +473,6 @@ hook.Call( "DDP_panelswasloaded", nil, name )
 end
 GetAllPanels()
 
-
-
---RunString("if(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() != nil ) then AS[1] = type(DDP.selected[1]:Get" .. string.Right( b, string.len( b )-3 ).. "() ) else Msg(tostring(NIL)end")
-
 --[[---------------------------------------------------------
  Name: GetCurrentCode(  )
 -----------------------------------------------------------]]
@@ -523,9 +503,8 @@ for k,v in ipairs( DDP.elemente ) do
 	        for a,b in ipairs( DDP.vgui[v.ClassName] or {} ) do
 
 		        if( GetValidMethod( v, b.name ) ) then 
-		            value_X = nil
+		            local value_X = DDP.elemente[k]["Get" .. FilterString( b.name )](DDP.elemente[k])
 			
-		    	    RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. FilterString( b.name ) .. "()" )
 			        if( type( value_X ) == "string" ) then
 			        str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
 						]]
@@ -552,11 +531,12 @@ Name: CreateFrameFile( name )
 -----------------------------------------------------------]]
 function CreateFrameFile( name )
 local name = name .. "_lua"
-local path = "db/projects/"
+local path = "dd/db/projects/"
 local parent = "frame"
 local fname = "RunWindow"
 
 if( file.Exists(path .. name .. ".txt", "DATA") ) then file.Delete( path .. name .. ".txt" )end
+if(! file.IsDir(path, "DATA")) then file.CreateDir(path) end
 
 file.Write(path .. name .. ".txt", "" .. [[local function ]] .. fname .. [[()
 local frame = vgui.Create("]] .. DDP.frame:GetTable().Derma.ClassName .. [[")
@@ -575,9 +555,8 @@ for k,v in ipairs( DDP.elemente ) do
 	        for a,b in ipairs( DDP.vgui[v.ClassName] ) do
 
 	        	if( GetValidMethod( v, b.name ) ) then 
-	            	value_X = nil
+	            	local value_X = DDP.elemente[k]["Get" .. FilterString( b.name )](DDP.elemente[k])
 			
-		           	RunString( "value_X = DDP.elemente[" ..k .. "]:Get" .. FilterString( b.name )  .. "()" )
 			        if( type( value_X ) == "string" ) then
 		            	str = str .. [[ e:]] .. b.name .. [[( "]] .. tostring(value_X) .. [[" )
 						]]
@@ -660,84 +639,86 @@ end
 -----------------------------------------------------------]]
 function CreateWindowFromFile( tab )
 
-if( DDP.frame != nil ) then
-	DDP.frame:Remove()
-	DDP.frame = nil
-	table.Empty(DDP.elemente)
-	table.Empty(DDP.selected)
-end
+	if( DDP.frame and DDP.frame:IsValid() ) then
+		DDP.frame:Remove()
+		DDP.frame = nil
+		table.Empty(DDP.elemente)
+		table.Empty(DDP.selected)
+	end
 
-DDP.frame = vgui.Create( "DFrame" )
-DDP.frame:SetPos( tab.frame.x, tab.frame.y )
-DDP.frame:SetSize(tab.frame.w, tab.frame.h)
-DDP.frame:SetTitle( tab.frame.title )
-DDP.frame:SetVisible( true )
-DDP.frame:SetDraggable( true )
-DDP.frame:SetSizable( true )
-DDP.frame:ShowCloseButton( true )
-DDP.frame:MakePopup()
-function DDP.frame:OnClose()
-LocalPlayer():ChatPrint( "[DermaDesigner]: closed")
-DDP.frame = nil
-table.Empty(DDP.elemente)
-table.Empty(DDP.selected)
+	DDP.frame = vgui.Create( "DFrame" )
+	DDP.frame:SetPos( tab.frame.x, tab.frame.y )
+	DDP.frame:SetSize(tab.frame.w, tab.frame.h)
+	DDP.frame:SetTitle( tab.frame.title )
+	DDP.frame:SetVisible( true )
+	DDP.frame:SetDraggable( true )
+	DDP.frame:SetSizable( true )
+	DDP.frame:ShowCloseButton( true )
+	DDP.frame:MakePopup()
+	function DDP.frame:OnClose()
+		LocalPlayer():ChatPrint( "[DermaDesigner]: closed")
+		DDP.frame = nil
+		table.Empty(DDP.elemente)
+		table.Empty(DDP.selected)
 
-end
+	end
 
 --[[---------------------------------------------------------
    Vertical: 
 -----------------------------------------------------------]]
 
-line = vgui.Create("DButton",DDP.frame)
-line:SetText("")
-line:SetPos(0,0)
-line:SetSize(5,0)
-line:SetZPos(32766)
-line:SetVisible(true)
-function line:Paint()
-    surface.SetDrawColor(0,0,255,255)
-    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-end
+	line = vgui.Create("DButton",DDP.frame)
+	line:SetText("")
+	line:SetPos(0,0)
+	line:SetSize(5,0)
+	line:SetZPos(32766)
+	line:SetVisible(true)
+	function line:Paint()
+		surface.SetDrawColor(0,0,255,255)
+		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+	end
 
-line2 = vgui.Create("DButton",DDP.frame)
-line2:SetText("")
-line2:SetPos(0,0)
-line2:SetSize(5,0)
-line2:SetZPos(32766)
-line2:SetVisible(true)
-function line2:Paint()
-    surface.SetDrawColor(0,0,255,255)
-    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-end
+	line2 = vgui.Create("DButton",DDP.frame)
+	line2:SetText("")
+	line2:SetPos(0,0)
+	line2:SetSize(5,0)
+	line2:SetZPos(32766)
+	line2:SetVisible(true)
+	function line2:Paint()
+		surface.SetDrawColor(0,0,255,255)
+		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+	end
 
 --[[---------------------------------------------------------
    Horizontal: 
 -----------------------------------------------------------]]
-line3 = vgui.Create("DButton",DDP.frame)
-line3:SetText("")
-line3:SetPos(0,0)
-line3:SetSize(5,0)
-line3:SetZPos(32766)
-line3:SetVisible(true)
-function line3:Paint()
-    surface.SetDrawColor(0,0,255,255)
-    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-end
+	line3 = vgui.Create("DButton",DDP.frame)
+	line3:SetText("")
+	line3:SetPos(0,0)
+	line3:SetSize(5,0)
+	line3:SetZPos(32766)
+	line3:SetVisible(true)
+	function line3:Paint()
+		surface.SetDrawColor(0,0,255,255)
+		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+	end
 
-line4 = vgui.Create("DButton",DDP.frame)
-line4:SetText("")
-line4:SetPos(0,0)
-line4:SetSize(5,0)
-line4:SetZPos(32766)
-line4:SetVisible(true)
-function line4:Paint()
-    surface.SetDrawColor(0,0,255,255)
-    surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-end
-	for i=1, #table.GetKeys( tab.elemente ) do
+	line4 = vgui.Create("DButton",DDP.frame)
+	line4:SetText("")
+	line4:SetPos(0,0)
+	line4:SetSize(5,0)
+	line4:SetZPos(32766)
+	line4:SetVisible(true)
+	function line4:Paint()
+		surface.SetDrawColor(0,0,255,255)
+		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
+	end
 
-		for index, panel in ipairs( tab.elemente[table.GetKeys( tab.elemente )[i]] ) do
-			vgui_element = vgui.Create(tostring(table.GetKeys( tab.elemente )[i]),DDP.frame)
+	local keys = table.GetKeys( tab.elemente )
+	for i=1, #keys do
+
+		for _, panel in ipairs( tab.elemente[keys[i]] ) do
+			local vgui_element = vgui.Create(tostring(keys[i]),DDP.frame)
 		
 			for k,v in ipairs( panel ) do
 
@@ -746,8 +727,7 @@ end
 					vgui_element:SetPos(v.x,v.y)
 				else
 					print( v.value )
-					VGUI_VALUE = v.value
-					RunString( "vgui_element:" .. v.method .. "( VGUI_VALUE )" )
+					vgui_element[v.method](vgui_element, v.value)
 				end
 			end
 			transform = vgui.Create( "DDTransform", DDP.frame )
@@ -757,7 +737,6 @@ end
 			table.insert( DDP.elemente, vgui_element )
 		end
 	end
-	VGUI_VALUE = nil
 
     DDP.selected[1] = DDP.elemente[1]
 end
@@ -768,7 +747,7 @@ end
 function CreateProjectFile( name )
 
 --fillme!
-local path = "db/projects/"
+local path = "dd/db/projects/"
 -- if projects folder dont exists
 if( !file.IsDir( path, "DATA" ) ) then file.CreateDir( path ) end
 -- if file exists do ... bla
@@ -806,7 +785,7 @@ end
    Name: LoadProjectFile
 -----------------------------------------------------------]]
 function LoadProjectFile( name )
-local path = "db/projects/"
+local path = "dd/db/projects/"
 	if( !file.Exists( path .. name .. ".txt", "DATA" ) ) then LocalPlayer():ChatPrint("File: " .. name .. " doesnt exists!") return end
 	local tab = util.JSONToTable( file.Read( path .. name .. ".txt", "DATA") )
 	CreateWindowFromFile( tab )
@@ -829,6 +808,3 @@ function AutoSaveProjectFile( name, content )
 --fillme!
 
 end
-
-
-

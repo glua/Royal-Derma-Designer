@@ -101,6 +101,7 @@ frame:SetDraggable( false )
 	Type:AddChoice( "boolean" )
 	Type:AddChoice( "table" )
 	Type:AddChoice( "color" )
+	Type:AddChoice( "function" )
 	Type.OnSelect = function( panel, index, value )
 	print( value .." was selected!" )
 end
@@ -163,14 +164,14 @@ end
 		  for k,v in ipairs( DDP.toolbox ) do
 			local DDListButtom = vgui.Create( "DDListButtom" )
 			DDListButtom:SetPos( 25, 50 ) 
-			DDListButtom:SetImage("DD/icons/default.png")
+			DDListButtom:SetImage("dd/icons/default.png")
 			DDListButtom:Droppable("ele")
 			DDListButtom:SetText( v.classname)                             // Set position
 			DDListButtom:SetSize( panel:GetWide(), 25 )     
 			function DDListButtom:DoClick() 
 				
 				if( changes ) then
-					CreateMessageBox( "You didnt save your changes! Do Want to save them?", { x = frame:GetWide() * .5 , y = frame:GetTall() * .5 , w = frame:GetWide() * .5 , h = frame:GetTall() * .5 } , function() file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui ) ) changes = false end , function() print("no") changes = false end ) 
+					CreateMessageBox( "You didn't save your changes! Do you want to save them?", { x = frame:GetWide() * .5 , y = frame:GetTall() * .5 , w = frame:GetWide() * .5 , h = frame:GetTall() * .5 } , function() file.Write( "dd/db/vgui.txt", util.TableToJSON( DDP.vgui, true ) ) changes = false end , function() print("no") changes = false end ) 
 				end
 				AppList:Clear()
 				selectedm = self:GetText()
