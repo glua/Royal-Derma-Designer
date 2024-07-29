@@ -104,33 +104,38 @@ end
 Name: GetTypByString( string )
 -----------------------------------------------------------]]
 function GetTypByString( str )
-	local lowerStr = string.lower(str)
+    local lowerStr = string.lower(str)
 
-	if( string.find(  lowerStr, "col" , 0, true )  or string.find(  lowerStr, "color" , 0, true ) ) then
-		return "color"
-	elseif( string.find(  lowerStr, "tonumber" , 0, true ) ) then
-		return "number"
-	elseif( string.find(  lowerStr, "format" , 0, true ) ) then
-		return "string"
-	elseif( string.find(  lowerStr, ":len(" , 0, true ) ) then
-		return "number"
-	elseif( string.find(  lowerStr, "vector" , 0, true ) ) then
-		return "vector"
-	elseif( string.find(  lowerStr, "==" , 0, true ) or string.find(  lowerStr, ">" , 0, true ) or string.find(  lowerStr, "<" , 0, true ) ) then
-		return "boolean"
-	elseif( string.find(  lowerStr, "self" , 0, true ) ) then
-		return "nil"
-	elseif( string.find( lowerStr, "%a%.%a", 0, false ) ) then
-		return "table"
-	elseif( string.find(  lowerStr, "+" , 0, true ) or string.find(  lowerStr, "-" , 0, true ) or string.find(  lowerStr, "*" , 0, true ) or string.find(  lowerStr, "/" , 0, true )  ) then
-		return "number"
-	end
+    if string.find(lowerStr, "col", 0, true) or string.find(lowerStr, "color", 0, true) then
+        return "color"
+    elseif string.find(lowerStr, "tonumber", 0, true) then
+        return "number"
+    elseif string.find(lowerStr, "format", 0, true) then
+        return "string"
+    elseif string.find(lowerStr, ":len(", 0, true) then
+        return "number"
+    elseif string.find(lowerStr, "vector", 0, true) then
+        return "vector"
+    elseif string.find(lowerStr, "==", 0, true) or string.find(lowerStr, ">", 0, true) or string.find(lowerStr, "<", 0, true) then
+        return "boolean"
+    elseif string.find(lowerStr, "self", 0, true) then
+        return "nil"
+    elseif string.find(lowerStr, "%a%.%a", 0, false) then
+        return "table"
+    elseif string.find(lowerStr, "+", 0, true) or string.find(lowerStr, "-", 0, true) or string.find(lowerStr, "*", 0, true) or string.find(lowerStr, "/", 0, true) then
+        return "number"
+    end
 
-	getTypByString = nil
-	RunString( " getTypByString = type( " .. FilterString( str ) .. " ) " )
+    getTypByString = nil
 
-	return getTypByString or "nil"
+    local filteredStr = FilterString(str)
+    local runStr = string.format("getTypByString = type(%s)", filteredStr)
+
+    RunString(runStr)
+
+    return getTypByString or "nil"
 end
+
 
 --[[---------------------------------------------------------
 Name: GetPosition( string )
